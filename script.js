@@ -161,8 +161,8 @@ function getFilteredCatalog() {
   if (currentCategory !== "all") {
     if (currentCategory === "bestseller") {
       list = list.filter(p => p.bestseller === true);
-    } else if (currentCategory === "wishlist") {
-      list = list.filter(p => wishlist.map(String).includes(String(p.id)));
+    } else if (currentCategory === "wishlist" || currentCategory === "favorites") {
+       list = list.filter(p => wishlist.map(String).includes(String(p.id)));
     } else if (currentCategory === "men") {
       list = list.filter(p => p.category === "men" || p.category === "unisex");
     } else if (currentCategory === "women") {
@@ -182,10 +182,12 @@ function getFilteredCatalog() {
 
   switch (currentSort) {
     case "price-low":
-      list.sort((a, b) => getProductExactPrice(a, 50) - getProductExactPrice(b, 50));
+    case "price-asc":
+        list.sort((a, b) => getProductExactPrice(a, 50) - getProductExactPrice(b, 50));
       break;
     case "price-high":
-      list.sort((a, b) => getProductExactPrice(b, 50) - getProductExactPrice(a, 50));
+    case "price-desc":
+        list.sort((a, b) => getProductExactPrice(b, 50) - getProductExactPrice(a, 50));
       break;
     case "name":
       list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -198,38 +200,41 @@ function getFilteredCatalog() {
 }
 
 function renderCatalog() {
-  const grid = document.getElementById("productsGrid");
-  const noProds = document.getElementById("noProducts");
-  const womenBanner = document.getElementById("womenNoticeBanner");
-
-  if (womenBanner) {
-    womenBanner.style.display = (currentCategory === "women") ? "block" : "none";
-  }
+  const grid = document.getElementById("catalog-products-container");
+  const noProds = document.getElementById("no-products-box");
 
   const list = getFilteredCatalog();
   const totalPages = Math.ceil(list.length / PRODUCTS_PER_PAGE);
-
   if (currentPage > totalPages && totalPages > 0) currentPage = 1;
 
   const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
   const paginated = list.slice(start, start + PRODUCTS_PER_PAGE);
 
-  if (grid) {
-    grid.innerHTML = paginated.map(generateProductCardHtml).join("");
+  if (grid) grid.innerHTML = paginated.map(generateProductCardHtml).join("");
+
+  if (noProds) {
+    if (list.length === 0) {
+      noProds.style.display = "flex";
+      const t = noProds.querySelector("h3");
+      const p = noProds.querySelector("p");
+      if (products.length === 0) {
+        if (t) t.textContent = "لسه مفيش عطور معروضة";
+        if (p) p.textContent = "جاري تجهيز التشكيلة الجديدة، تابعنا قريباً 🌹";
+      } else {
+        if (t) t.textContent = "مفيش نتائج مطابقة للبحث";
+        if (p) p.textContent = "جرّب تغيّر القسم أو كلمة البحث.";
+      }
+    } else {
+      noProds.style.display = "none";
+    }
   }
 
-  if (list.length === 0) {
-    if (noProds) noProds.style.display = "block";
-    renderPagination(0);
-  } else {
-    if (noProds) noProds.style.display = "none";
-    renderPagination(totalPages);
-  }
+  renderPagination(list.length === 0 ? 0 : totalPages);
 }
 
 function renderPagination(totalPages) {
-  const container = document.getElementById("pagination");
-  if (!container) return;
+  const container = document.getElementById("pagination-container");
+   if (!container) return;
 
   if (totalPages <= 1) {
     container.innerHTML = "";
@@ -275,6 +280,10 @@ window.resetFilters = function() {
 const productPage = document.getElementById("productPage");
 
 window.openProductPage = function(id) {
+  if (!document.getElementById("productPage")) {
+    window.location.href = `product.html?id=${encodeURIComponent(id)}`;
+    return;
+  }
   const prod = products.find(p => String(p.id) === String(id));
   if (!prod || !productPage) return;
 
@@ -913,11 +922,12 @@ ${itemsListText}
    9. المفضلة، البحث والتوست
    ========================================================= */
 function updateBadges() {
-  const cartBadge = document.getElementById("cartCountBadge");
+  const total = cart.reduce((sum, i) => sum + Number(i.quantity || 1), 0);
+  ["cart-counter", "mob-cart-counter", "cartCountBadge"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = total;
+  });
   const wishBadge = document.getElementById("wishlistCountBadge");
-
-  const totalCartCount = cart.reduce((sum, i) => sum + Number(i.quantity || 1), 0);
-  if (cartBadge) cartBadge.textContent = totalCartCount;
   if (wishBadge) wishBadge.textContent = wishlist.length;
 }
 
@@ -953,8 +963,9 @@ document.addEventListener("click", (e) => {
   const quickBuyBtn = e.target.closest('[data-action="quick-buy"]');
   if (quickBuyBtn) {
     e.stopPropagation();
-    addToCart(quickBuyBtn.dataset.id, 1, 50);
-    openCheckout();
+    addToCart(quickBuyBtn.dataset.id, 1, 30);
+    showToast("تمت الإضافة للسلة 🛍️", "جاري تحويلك للسلة...");
+    setTimeout(() => { window.location.href = "cart.html"; }, 800);
     return;
   }
 });
@@ -999,19 +1010,13 @@ document.getElementById("sortSelect")?.addEventListener("change", (e) => {
 
 let toastTimer = null;
 function showToast(title, msg) {
-  const toast = document.getElementById("toast");
-  const tTitle = document.getElementById("toastTitle");
-  const tText = document.getElementById("toastText");
+  const toast = document.getElementById("abasco-toast") || document.getElementById("toast");
   if (!toast) return;
-
-  if (tTitle) tTitle.textContent = title;
-  if (tText) tText.textContent = msg;
-
+  const txt = document.getElementById("toast-text") || document.getElementById("toastText");
+  if (txt) txt.textContent = msg ? `${title} — ${msg}` : title;
   toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3500);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 3500);
 }
 
 document.getElementById("applyCouponBtn")?.addEventListener("click", async () => {
@@ -1196,3 +1201,57 @@ document.addEventListener('DOMContentLoaded', () => {
 // تشغيل الشاشات
 updateBadges();
 renderCatalog();
+/* ===== ربط تبويبات الأقسام (رجالي / حريمي / النوعين...) ===== */
+document.getElementById("category-pills-wrap")?.addEventListener("click", (e) => {
+  const btn = e.target.closest(".cat-pill-btn");
+  if (!btn) return;
+  document.querySelectorAll(".cat-pill-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCategory = btn.dataset.cat;
+  currentPage = 1;
+  renderCatalog();
+});
+
+/* ===== قائمة الترتيب حسب ===== */
+const sortTrigger = document.getElementById("sort-dropdown-trigger");
+const sortMenu = document.getElementById("sort-options-menu");
+
+sortTrigger?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  sortMenu?.classList.toggle("open");
+});
+document.addEventListener("click", () => sortMenu?.classList.remove("open"));
+
+sortMenu?.addEventListener("click", (e) => {
+  const li = e.target.closest("li");
+  if (!li) return;
+  sortMenu.querySelectorAll("li").forEach(x => x.classList.remove("active"));
+  li.classList.add("active");
+  const lbl = document.getElementById("selected-sort-label");
+  if (lbl) lbl.textContent = li.textContent.trim();
+  currentSort = li.dataset.sort;
+  currentPage = 1;
+  sortMenu.classList.remove("open");
+  renderCatalog();
+});
+
+/* ===== البحث العلوي ===== */
+const topSearchInput = document.getElementById("search-input");
+topSearchInput?.addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  currentPage = 1;
+  renderCatalog();
+});
+
+document.getElementById("search-form")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  searchQuery = topSearchInput?.value || "";
+  const c = document.getElementById("search-category")?.value || "all";
+  currentCategory = c;
+  document.querySelectorAll(".cat-pill-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.cat === c);
+  });
+  currentPage = 1;
+  renderCatalog();
+  document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+});
