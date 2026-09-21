@@ -1579,10 +1579,7 @@ body.dark-mode .sharaqa-style-footer {
     grid-template-columns: 1fr;
     gap: 25px;
   }
-  .catalog-top-bar-redesigned {
-    flex-direction: column;
-    align-items: stretch;
-  }
+
   .sharaqa-bottom-bar {
     flex-direction: column;
     gap: 10px;
@@ -1605,4 +1602,69 @@ body.dark-mode .sharaqa-style-footer {
   /* محاذاة العناصر وتثبيتها */
   padding: 100px 0;
   text-align: center;
+}
+/* شريط الأقسام والترتيب على الموبايل - صف واحد بالعرض */
+@media (max-width: 768px) {
+  .catalog-top-bar-redesigned {
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .category-pills-scroll {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cat-pill-btn { padding: 7px 14px; font-size: 0.78rem; }
+  .sort-title-label { display: none; }
+  .custom-sort-container { flex-shrink: 0; }
+  .custom-dropdown-box { padding: 6px 10px; font-size: 0.78rem; }
+  .custom-sort-menu { left: 0; right: auto; width: 180px; }
+}
+
+/* توسيط الحقوق بعد حذف اسم المطور */
+.sharaqa-bottom-bar { justify-content: center !important; text-align: center; }
+
+/* رسالة عدم وجود عطور */
+.empty-store-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  padding: 55px 20px;
+  margin-bottom: 30px;
+  background: var(--bg-surface);
+  border: 1.5px dashed rgba(229, 169, 100, 0.55);
+  border-radius: var(--radius-md);
+}
+.empty-icon-circle {
+  width: 74px; height: 74px; border-radius: 50%;
+  background: var(--dream-green-light);
+  color: var(--accent-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  border: 1.5px solid rgba(229, 169, 100, 0.4);
+}
+.empty-store-state h3 { font-size: 1.15rem; font-weight: 900; color: var(--text-main); }
+.empty-store-state p { font-size: 0.88rem; color: var(--text-muted); max-width: 420px; }
+.empty-wa-btn {
+  margin-top: 8px; display: inline-flex; align-items: center; gap: 8px;
+  background: #25d366; color: #fff; font-weight: 800; font-size: 0.85rem;
+  padding: 10px 22px; border-radius: 50px;
+}
+
+/* توحيد لون الأزرار مع الذهبي بدل الأخضر */
+.cat-pill-btn:hover, .cat-pill-btn.active {
+  background: var(--accent-gold) !important;
+  border-color: var(--accent-gold) !important;
+  color: #000 !important;
+  box-shadow: 0 4px 12px var(--dream-green-glow) !important;
 }
