@@ -1416,6 +1416,8 @@ input, textarea {
   opacity: 0;
   transform: translateY(30px);
   pointer-events: none;
+  visibility: hidden;
+   
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -1423,6 +1425,8 @@ input, textarea {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  visibility: visible;
+   
 }
 
 .abasco-toast i {
@@ -1568,23 +1572,10 @@ body.dark-mode .sharaqa-style-footer {
   text-decoration: none;
 }
 
-@media (max-width: 992px) {
-  .sharaqa-footer-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+
 
 @media (max-width: 576px) {
-  .sharaqa-footer-grid {
-    grid-template-columns: 1fr;
-    gap: 25px;
-  }
 
-  .sharaqa-bottom-bar {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
   .abasco-toast {
     bottom: 75px !important;
     left: 15px !important;
@@ -1667,4 +1658,72 @@ body.dark-mode .sharaqa-style-footer {
   border-color: var(--accent-gold) !important;
   color: #000 !important;
   box-shadow: 0 4px 12px var(--dream-green-glow) !important;
+}
+/* فوتر بالعرض على الموبايل زي الديسكتوب */
+@media (max-width: 992px) {
+  .sharaqa-style-footer { padding: 32px 0 18px; }
+  .sharaqa-footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr !important;
+    gap: 14px !important;
+  }
+  .sharaqa-logo-wrap { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+  .sharaqa-footer-logo { height: 34px; }
+  .sharaqa-brand-text h2 { font-size: 0.9rem; }
+  .sharaqa-tagline { font-size: 0.65rem; }
+  .sharaqa-about-p { font-size: 0.68rem; line-height: 1.6; }
+  .sharaqa-col-title { font-size: 0.78rem; margin-bottom: 10px; }
+  .sharaqa-links-list a { font-size: 0.68rem; }
+  .sharaqa-links-list li { margin-bottom: 7px; }
+  .sharaqa-social-buttons { flex-wrap: wrap; gap: 6px; }
+  .sharaqa-soc-btn { width: 30px; height: 30px; font-size: 0.75rem; }
+  .sharaqa-footer-line { margin: 22px 0 14px; }
+  .sharaqa-bottom-bar { font-size: 0.66rem; text-align: center; }
+}
+
+@media (max-width: 420px) {
+  .sharaqa-footer-grid { gap: 10px !important; }
+  .sharaqa-links-list a, .sharaqa-about-p { font-size: 0.62rem; }
+  .sharaqa-col-title { font-size: 0.72rem; }
+}
+/* كبسولة آراء العملاء - نسخة مصغرة للموبايل */
+@media (max-width: 768px) {
+  .reviews-section-compact { padding: 22px 0 12px; }
+  .reviews-header-capsule {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    border-radius: 40px;
+    margin-bottom: 12px;
+  }
+  .capsule-icon-glow {
+    width: 30px; height: 30px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .capsule-text-col { flex: 1; min-width: 0; text-align: right; }
+  .capsule-text-col h3 {
+    font-size: 0.74rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .capsule-text-col p {
+    font-size: 0.6rem;
+    line-height: 1.3;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .capsule-verified-tag {
+    font-size: 0.56rem;
+    padding: 3px 7px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .review-mini-card { width: 120px; height: 160px; }
 }
