@@ -1,0 +1,261 @@
+  <form id="adminLoginForm">
+    <input type="email" id="adminEmailInput" placeholder="البريد الإلكتروني..." required style="margin-bottom:12px; text-align:center;">
+    <input type="password" id="adminLoginInput" placeholder="كلمة المرور..." autocomplete="current-password" required style="margin-bottom:16px; text-align:center;">
+    <button type="submit" id="adminLoginSubmitBtn" class="btn-gold-save" style="width:100%;">دخول آمن للوحة التحكم</button>
+    <a href="index.html" style="display:block; color:#6b7280; font-size:11px; margin-top:16px; text-decoration:none;">➔ العودة لمتجر سيف</a>
+  </form>
+</div>
+
+
+<div class="header-nav-actions">
+  <a href="index.html" class="btn-exit-store">خروج للمتجر ➔</a>
+  <button type="button" class="admin-menu-trigger" id="menuBtn">☰</button>
+
+  <!-- القائمة المنسدلة للأقسام -->
+  <div class="admin-dropdown-menu" id="dropdownMenu">
+    <button type="button" class="dropdown-btn-item" onclick="openAdminSection('inventorySec')">
+      <span>🏺 إدارة العطور والمخزون</span>
+    </button>
+    <button type="button" class="dropdown-btn-item" onclick="openAdminSection('ordersSec')">
+      <span>📋 فواتير وطلبات الموقع</span>
+    </button>
+    <button type="button" class="dropdown-btn-item" onclick="openAdminSection('shippingSec')">
+      <span>🚚 تسعير شحن المحافظات</span>
+    </button>
+    <button type="button" class="dropdown-btn-item" onclick="openAdminSection('couponsSec')">
+      <span>🎟️ إدارة كوبونات الخصم</span>
+    </button>
+    <button type="button" class="dropdown-btn-item" onclick="openAdminSection('settingsSec')">
+      <span>⚙️ إعدادات الواتساب والتواصل</span>
+    </button>
+    <button type="button" class="dropdown-btn-item" id="syncCatalogToFirebaseBtn" style="color: #60a5fa;">
+      <span>📥 مزامنة الـ 99 عطراً لـ Firebase</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- كروت المؤشرات الأساسية -->
+<div class="kpi-metrics-row">
+  <div class="metric-box">
+    <div class="metric-caption">إجمالي مبيعات المتجر</div>
+    <div class="metric-value" id="kpiRevenue">0 ج</div>
+  </div>
+  <div class="metric-box">
+    <div class="metric-caption">عدد الطلبات المسجلة</div>
+    <div class="metric-value green" id="kpiTotalOrders">0</div>
+  </div>
+  <div class="metric-box">
+    <div class="metric-caption">طلبيات جديدة بالانتظار</div>
+    <div class="metric-value red" id="kpiPendingOrders">0</div>
+  </div>
+  <div class="metric-box">
+    <div class="metric-caption">إجمالي العطور بالكتالوج</div>
+    <div class="metric-value" id="kpiPerfumesCount">0</div>
+  </div>
+</div>
+
+<!-- 1. قسم إدارة العطور والمخزون -->
+<section id="inventorySec" class="admin-tab-view active">
+  
+  <!-- إضافة أو تعديل عطر -->
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>✨ إضافة عطر جديد أو تعديل المخزون</span>
+    </div>
+
+    <form id="perfumeForm">
+      <input type="hidden" id="pEditId" value="">
+
+      <div class="form-grid-columns">
+        <div class="field-wrap">
+          <label>اسم العطر المستوحى *</label>
+          <input type="text" id="pName" placeholder="مثال: بكرات روج" required>
+        </div>
+
+        <div class="field-wrap">
+          <label>التصنيف *</label>
+          <select id="pCategory">
+            <option value="men">رجالي 👔</option>
+            <option value="women">نسائي 🌸</option>
+            <option value="unisex">للجنسين ✨ (يظهر في القسمين تلقائياً)</option>
+          </select>
+        </div>
+
+        <div class="field-wrap">
+          <label>السعر الأساسي للـ 50 مل (ج) *</label>
+          <input type="number" id="pBasePrice" placeholder="380" required>
+        </div>
+
+        <div class="field-wrap" style="justify-content: flex-end; padding-bottom: 4px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--gold); font-size: 12px; font-weight: 800;">
+            <input type="checkbox" id="pBestseller" style="width: 18px; height: 18px; accent-color: var(--gold); cursor: pointer;">
+            <span>⭐ تمييز كـ "الأكثر مبيعاً"</span>
+          </label>
+        </div>
+
+        <!-- تسعير ومخزون الأحجام الثلاثة -->
+        <div class="field-wrap" style="grid-column: 1 / -1; background: rgba(0,0,0,0.25); border: 1px solid var(--border-dim); border-radius: var(--radius-sm); padding: 14px;">
+          <label style="color: var(--gold); font-weight: 800; font-size: 12px; margin-bottom: 10px; display: block;">
+            💎 تسعير وعدد الزجاجات لكل حجم (التحكم بالوفرة):
+          </label>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            
+            <!-- 30 مل -->
+            <div style="background: var(--admin-card); padding: 10px; border-radius: 6px; border: 1px solid var(--border-dim);">
+              <strong style="color: #fff; font-size: 11.5px; display: block; margin-bottom: 6px;">🧴 30 مل</strong>
+              <div style="display: flex; gap: 6px;">
+                <input type="number" id="pSize30" placeholder="السعر" required style="padding: 6px; font-size: 11px;">
+                <input type="number" id="pStock30" placeholder="المخزون" value="15" required style="padding: 6px; font-size: 11px;">
+              </div>
+            </div>
+
+            <!-- 50 مل -->
+            <div style="background: var(--admin-card); padding: 10px; border-radius: 6px; border: 1px solid var(--border-dim);">
+              <strong style="color: var(--gold); font-size: 11.5px; display: block; margin-bottom: 6px;">✨ 50 مل (الأساسي)</strong>
+              <div style="display: flex; gap: 6px;">
+                <input type="number" id="pSize50" placeholder="السعر" required style="padding: 6px; font-size: 11px;">
+                <input type="number" id="pStock50" placeholder="المخزون" value="15" required style="padding: 6px; font-size: 11px;">
+              </div>
+            </div>
+
+            <!-- 100 مل -->
+            <div style="background: var(--admin-card); padding: 10px; border-radius: 6px; border: 1px solid var(--border-dim);">
+              <strong style="color: #fff; font-size: 11.5px; display: block; margin-bottom: 6px;">👑 100 مل</strong>
+              <div style="display: flex; gap: 6px;">
+                <input type="number" id="pSize100" placeholder="السعر" required style="padding: 6px; font-size: 11px;">
+                <input type="number" id="pStock100" placeholder="المخزون" value="5" required style="padding: 6px; font-size: 11px;">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- رفع صورة العطر -->
+        <div class="field-wrap" style="grid-column: 1 / -1;">
+          <label>صورة العطر *</label>
+          <div class="file-dropzone-uploader" onclick="document.getElementById('pFileInput').click()">
+            <input type="file" id="pFileInput" accept="image/*" style="display:none;">
+            <span id="uploadStatusTxt" style="font-size: 12px; color: var(--text-muted);">📁 اضغط هنا لاختيار صورة العطر من جهازك (تُرفع وتُضغط سحابياً فوراً)</span>
+          </div>
+        </div>
+
+        <div class="field-wrap" style="grid-column: 1 / -1;">
+          <label>النوتات العطرية والوصف</label>
+          <input type="text" id="pNotes" placeholder="مثال: عنبر، ياسمين، زعفران، أرز...">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button type="submit" class="btn-gold-save" id="savePerfumeBtn">حفظ العطر ونشره بالكتالوج 💾</button>
+        <button type="button" class="btn-exit-store" id="cancelEditBtn" style="display: none;" onclick="cancelEditing()">إلغاء التعديل</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- قائمة الكروت الملمومة والمخزون الحالي -->
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>الوفرة والمخزون (خصم مبيعات المحل المباشرة بنقرة واحدة)</span>
+    </div>
+    <div class="inventory-cards-grid" id="perfumesStockList"></div>
+  </div>
+
+</section>
+
+<!-- 2. قسم فواتير وطلبات الموقع -->
+<section id="ordersSec" class="admin-tab-view">
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>سجل الطلبيات الواردة</span>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-gold-save" id="exportExcelBtn" style="padding: 6px 14px; font-size: 11.5px;">📊 تصدير Excel احترافي</button>
+        <button type="button" class="btn-exit-store" id="clearAllOrdersBtn" style="padding: 6px 14px; font-size: 11.5px;">🗑️ تصفير كل الطلبات</button>
+      </div>
+    </div>
+
+    <div class="table-container-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>المشتري</th>
+            <th>رقم الهاتف</th>
+            <th>المحافظة والعنوان</th>
+            <th>العطور المطلوبة</th>
+            <th>طريقة السداد</th>
+            <th>المبلغ الإجمالي</th>
+            <th>الحالة</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+          <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">جاري جلب الطلبيات...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 3. قسم تسعير شحن المحافظات -->
+<section id="shippingSec" class="admin-tab-view">
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>🚚 تسعير شحن طرود سيف للعطور لكافة المحافظات</span>
+    </div>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+      عدّل سعر الشحن لأي محافظة واضغط حفظ؛ وسيتم تحديث التسعيرة فوراً داخل صفحة الشراء لجميع الزوار.
+    </p>
+
+    <form id="shippingRatesForm">
+      <div id="govRatesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;"></div>
+      <button type="submit" class="btn-gold-save" style="margin-top: 20px; width: 100%;">حفظ أسعار الشحن 🚚</button>
+    </form>
+  </div>
+</section>
+
+<!-- 4. قسم الكوبونات -->
+<section id="couponsSec" class="admin-tab-view">
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>🎟️ تفعيل كود خصم جديد</span>
+    </div>
+
+    <form id="createCouponForm">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px;">
+        <div class="field-wrap">
+          <label>كود الكوبون *</label>
+          <input type="text" id="cpnCode" placeholder="مثال: SEIF10" style="text-transform: uppercase;" required>
+        </div>
+        <div class="field-wrap">
+          <label>نسبة الخصم % *</label>
+          <input type="number" id="cpnValue" placeholder="10" min="1" max="100" required>
+        </div>
+      </div>
+      <button type="submit" class="btn-gold-save">+ حفظ وتفعيل الكود</button>
+    </form>
+
+    <div style="margin-top: 25px;">
+      <h4 style="font-size: 13px; color: var(--gold); margin-bottom: 10px;">الكوبونات النشطة حالياً:</h4>
+      <div id="couponsListContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. قسم الإعدادات ورقم الواتساب -->
+<section id="settingsSec" class="admin-tab-view">
+  <div class="admin-panel">
+    <div class="panel-header-title">
+      <span>📱 إعدادات استقبال الطلبات عبر واتساب</span>
+    </div>
+
+    <form id="settingsForm">
+      <div class="field-wrap" style="max-width: 400px; margin-bottom: 15px;">
+        <label>رقم واتساب الإدارة (مع كود 20) *</label>
+        <input type="tel" id="cfgWhatsapp" placeholder="مثال: 201016118242" required>
+        <small style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">الرقم الذي تُرسل إليه فواتير وبيانات الطلبات تلقائياً.</small>
+      </div>
+      <button type="submit" class="btn-gold-save">حفظ وتحديث الرقم 💾</button>
+    </form>
+  </div>
+</section>
