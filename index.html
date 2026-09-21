@@ -35,16 +35,16 @@
     </div>
   </div>
 
-  <!-- 2. رأس المتجر المطابق لهيكلة دريم وعباسكو (Header) -->
+  <!-- 2. رأس المتجر (Header) -->
   <header class="dream-header">
     <div class="container header-inner">
       
-      <!-- شعار محل سيف للعطور (يدعم الضغط المطول 3 ثوانٍ للوحة التحكم) -->
+      <!-- شعار محل سيف للعطور -->
       <a href="index.html" class="dream-brand" id="main-logo-link" title="اضغط مطولاً للوحة التحكم">
         <img src="logo.png" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo" id="main-store-logo">
       </a>
 
-      <!-- محرك البحث المركزي مع قائمة أقسام العطور -->
+      <!-- محرك البحث المركزي -->
       <form class="dream-search-bar" id="search-form">
         <div class="search-cat-picker">
           <select id="search-category" aria-label="اختر القسم">
@@ -77,7 +77,7 @@
 
         <div class="header-v-divider"></div>
 
-        <!-- زر عربة التسوق ينقل مباشرة لـ cart.html -->
+        <!-- زر عربة التسوق -->
         <a href="cart.html" class="dream-cart-btn" title="عرض السلة">
           <div class="cart-icon-bubble">
             <i class="fa-solid fa-cart-shopping"></i>
@@ -88,7 +88,7 @@
       </div>
     </div>
 
-    <!-- شريط العروض النارية (يظهر عند وجود عروض مفعّلة) -->
+    <!-- شريط العروض النارية -->
     <section class="hero-3d-offers-banner" id="hot-offers-section" style="display:none;">
       <div class="container">
         <div class="offers-stage-3d" id="offers-stage-3d">
@@ -116,11 +116,10 @@
     </nav>
   </header>
 
-  <!-- 3. بنر المحل الترويجي السينمائي (صورة / فيديو المحل - مثل سراقة) -->
+  <!-- 3. بنر المحل الترويجي السينمائي -->
   <section class="seif-store-media-banner">
     <div class="container">
       <div class="store-media-wrapper">
-        <!-- يمكن استبدال الصورة بفيديو <video autoplay muted loop src="store-video.mp4"></video> -->
         <img src="image/S1.png" alt="محل سيف للعطور" class="store-hero-img" id="store-banner-media">
         <div class="store-media-overlay">
           <div class="store-overlay-content">
@@ -134,7 +133,7 @@
   </section>
 
   <!-- 4. منطقة الكتالوج والمنتجات الرئيسية -->
-  <main class="dream-catalog-canvas">
+  <main class="dream-catalog-canvas" id="catalog">
     <div class="container">
       
       <!-- عنوان الصفحة -->
@@ -142,168 +141,43 @@
         <h1>تشكيلة العطور الفاخرة</h1>
       </div>
 
-      <!-- تخطيط الصفحة: المنتجات يساراً والفلاتر يميناً (RTL) -->
-      <div class="dream-main-layout">
+      <!-- شريط التحكم العلوي المعدل بالكامل -->
+      <div class="catalog-top-bar-redesigned">
         
-        <!-- عمود عرض المنتجات الرئيسي -->
-        <section class="products-showcase-column">
-          
-          <!-- شريط التحكم العلوي -->
-          <div class="catalog-top-bar">
-            
-            <!-- أقصى اليمين: زر تصفية + العداد -->
-            <div class="items-count-display">
-              <button class="desktop-filter-btn" id="filter-toggle-btn" type="button">
-                <i class="fa-solid fa-sliders"></i>
-                <span>تصفية</span>
-              </button>
-              <span class="count-text" id="products-counter-badge">جاري التحميل...</span>
-            </div>
+        <!-- التبويبات والتصنيفات المطلوبة -->
+        <div class="category-pills-scroll" id="category-pills-wrap">
+          <button type="button" class="cat-pill-btn active" data-cat="all">الكل</button>
+          <button type="button" class="cat-pill-btn" data-cat="men">رجالي 👔</button>
+          <button type="button" class="cat-pill-btn" data-cat="women">حريمي 🌸</button>
+          <button type="button" class="cat-pill-btn" data-cat="unisex">النوعين ✨</button>
+          <button type="button" class="cat-pill-btn" data-cat="bestseller">الأكثر مبيعاً 🔥</button>
+          <button type="button" class="cat-pill-btn" data-cat="favorites">المفضلة ❤️</button>
+        </div>
 
-            <!-- المنتصف: ترتيب حسب -->
-            <div class="custom-sort-container">
-              <span class="sort-title-label">ترتيب حسب:</span>
-              <div class="custom-dropdown-box" id="sort-dropdown-trigger">
-                <span id="selected-sort-label">مميز</span>
-                <i class="fa-solid fa-chevron-down dropdown-arrow-icon"></i>
-              </div>
-              <ul class="custom-sort-menu" id="sort-options-menu">
-                <li data-sort="featured" class="active">مميز</li>
-                <li data-sort="price-asc">السعر، من الأقل للأعلى</li>
-                <li data-sort="price-desc">السعر، من الأعلى للأقل</li>
-              </ul>
-            </div>
-
-            <!-- أقصى اليسار: أيقونات العرض -->
-            <div class="view-modes">
-              <button class="view-btn active" id="btn-view-grid" title="عرض شبكي 4 أعمدة" type="button">        
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-              </button>
-              <button class="view-btn" id="btn-view-list" title="عرض القائمة" type="button">        
-                <svg width="20" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="6" height="6" rx="1.5"/><rect x="3" y="14" width="6" height="6" rx="1.5"/><line x1="12" y1="5" x2="21" y2="5"/><line x1="12" y1="10" x2="21" y2="10"/><line x1="12" y1="15" x2="21" y2="15"/><line x1="12" y1="19" x2="21" y2="19"/></svg>
-              </button>
-            </div>
-
+        <!-- أقصى الشمال: ترتيب حسب -->
+        <div class="custom-sort-container">
+          <span class="sort-title-label">ترتيب حسب:</span>
+          <div class="custom-dropdown-box" id="sort-dropdown-trigger">
+            <span id="selected-sort-label">مميز</span>
+            <i class="fa-solid fa-chevron-down dropdown-arrow-icon"></i>
           </div>
-
-          <!-- شريط التصفية النشطة مع زر مسح الكل -->
-          <div class="active-filters-chips-bar" id="active-filters-bar" style="display: none;">
-            <div class="filter-chip" id="current-brand-chip">
-              <span id="chip-brand-text">كل العطور</span>
-              <i class="fa-solid fa-xmark" id="remove-brand-chip"></i>
-            </div>
-            <button class="clear-all-filters-btn" id="clear-all-filters-btn">مسح الكل</button>
-          </div>
-
-          <!-- شبكة عرض المنتجات (تتغير ديناميكياً بين Grid و List) -->
-          <div class="dream-products-grid" id="catalog-products-container">
-            <!-- يتم حقن كروت العطور تلقائياً عبر script.js -->
-          </div>
-
-          <!-- شريط أرقام الصفحات التفاعلي -->
-          <div class="dream-pagination-bar" id="pagination-container">
-            <!-- يتم توليد الصفحات تلقائياً -->
-          </div>
-
-        </section>
-
-        <!-- الشريط الجانبي للتصفية الشاملة للعطور -->
-        <aside class="dream-filters-sidebar">
-          
-          <div class="sidebar-main-title">تصفية العطور</div>
-
-          <div class="stock-toggle-row">
-            <span>متوفر بالمخزون</span>
-            <label class="clean-switch">
-              <input type="checkbox" id="stock-filter">
-              <span class="clean-slider"></span>
-            </label>
-          </div>
-
-          <div class="filter-boxes-stack">
-            
-            <!-- 1. السعر -->
-            <div class="filter-card-accordion">
-              <div class="filter-card-header">
-                <span>السعر (جنيه)</span>
-                <i class="fa-solid fa-chevron-down"></i>
-              </div>
-              <div class="filter-card-body">
-                <div class="filter-body-top-row">
-                  <span class="reset-filter-btn" onclick="resetFilterGroup('price')">إعادة تعيين</span>
-                  <span class="selected-count-label" id="count-price">تم تحديد 0 عناصر</span>
-                </div>
-                <input type="range" id="price-range" min="100" max="3000" step="50" value="3000" style="width:100%; accent-color:#e5a964; margin-top:8px;">
-                <div class="price-limits-text">
-                  <span>من: 100 ج.م</span>
-                  <span id="max-price-display">حتى: 3,000 ج.م</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. الجنس / الفئة -->
-            <div class="filter-card-accordion">
-              <div class="filter-card-header">
-                <span>النوع والجنس</span>
-                <i class="fa-solid fa-chevron-down"></i>
-              </div>
-              <div class="filter-card-body">
-                <div class="filter-body-top-row">
-                  <span class="reset-filter-btn" onclick="resetFilterGroup('gender')">إعادة تعيين</span>
-                  <span class="selected-count-label" id="count-gender">تم تحديد 0 عناصر</span>
-                </div>
-                <div class="filter-options-scroll">
-                  <label class="custom-chk"><span>عطور رجالية 👔 <b class="count-tag" data-val="men">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="gender" value="men"></label>
-                  <label class="custom-chk"><span>عطور نسائية 🌸 <b class="count-tag" data-val="women">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="gender" value="women"></label>
-                  <label class="custom-chk"><span>عطور للجنسين ✨ <b class="count-tag" data-val="unisex">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="gender" value="unisex"></label>
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. الحجم (السعة) -->
-            <div class="filter-card-accordion">
-              <div class="filter-card-header">
-                <span>حجم العبوة</span>
-                <i class="fa-solid fa-chevron-down"></i>
-              </div>
-              <div class="filter-card-body">
-                <div class="filter-body-top-row">
-                  <span class="reset-filter-btn" onclick="resetFilterGroup('size')">إعادة تعيين</span>
-                  <span class="selected-count-label" id="count-size">تم تحديد 0 عناصر</span>
-                </div>
-                <div class="filter-options-scroll">
-                  <label class="custom-chk"><span>30 مل (حجم الجيب) <b class="count-tag" data-val="30">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="size" value="30"></label>
-                  <label class="custom-chk"><span>50 مل (الحجم الأساسي) <b class="count-tag" data-val="50">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="size" value="50"></label>
-                  <label class="custom-chk"><span>100 مل (توفير ملكي) <b class="count-tag" data-val="100">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="size" value="100"></label>
-                </div>
-              </div>
-            </div>
-
-            <!-- 4. العائلة العطرية (النوتات) -->
-            <div class="filter-card-accordion">
-              <div class="filter-card-header">
-                <span>العائلة العطرية</span>
-                <i class="fa-solid fa-chevron-down"></i>
-              </div>
-              <div class="filter-card-body">
-                <div class="filter-body-top-row">
-                  <span class="reset-filter-btn" onclick="resetFilterGroup('notes')">إعادة تعيين</span>
-                  <span class="selected-count-label" id="count-notes">تم تحديد 0 عناصر</span>
-                </div>
-                <div class="filter-options-scroll">
-                  <label class="custom-chk"><span>عود وعنبر ملكي <b class="count-tag" data-val="عود">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="notes" value="عود"></label>
-                  <label class="custom-chk"><span>فواكه وسويت <b class="count-tag" data-val="سويت">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="notes" value="سويت"></label>
-                  <label class="custom-chk"><span>أزهار وانتعاش <b class="count-tag" data-val="زهور">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="notes" value="زهور"></label>
-                  <label class="custom-chk"><span>توابل وشرقي <b class="count-tag" data-val="توابل">(0)</b></span><input type="checkbox" class="filter-checkbox" data-type="notes" value="توابل"></label>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </aside>
+          <ul class="custom-sort-menu" id="sort-options-menu">
+            <li data-sort="featured" class="active">مميز</li>
+            <li data-sort="price-asc">السعر، من الأقل للأعلى</li>
+            <li data-sort="price-desc">السعر، من الأعلى للأقل</li>
+          </ul>
+        </div>
 
       </div>
+
+      <!-- شبكة عرض المنتجات -->
+      <div class="dream-products-grid" id="catalog-products-container">
+        <!-- يتم حقن كروت العطور تلقائياً عبر script.js -->
+      </div>
+
+      <!-- شريط أرقام الصفحات -->
+      <div class="dream-pagination-bar" id="pagination-container"></div>
+
     </div>
   </main>
 
@@ -324,59 +198,84 @@
         </span>
       </div>
 
-      <!-- شريط السكرينات المتحرك -->
       <div class="reviews-compact-marquee">
-        <div class="reviews-compact-track" id="reviews-compact-track">
-          <!-- تتولد الصور تلقائياً للجافاسكريبت -->
-        </div>
+        <div class="reviews-compact-track" id="reviews-compact-track"></div>
       </div>
 
     </div>
   </section>
 
-  <!-- 6. تذييل المتجر الرئيسي -->
-  <footer class="dream-footer">
-    <div class="footer-bottom-glow"></div>
+  <!-- 6. تذييل المتجر بأسلوب "سراقة" المستوي بدون أقواس -->
+  <footer class="sharaqa-style-footer">
     <div class="container">
       
-      <div class="footer-simple-center">
-        <div class="footer-simple-card">
-          <img src="logo.png" alt="محل سيف للعطور">
+      <div class="sharaqa-footer-grid">
+        
+        <!-- العمود الأول: اسم المتجر والشعار -->
+        <div class="sharaqa-col brand-info-col">
+          <div class="sharaqa-logo-wrap">
+            <img src="logo.png" alt="شعار سيف للعطور" class="sharaqa-footer-logo">
+            <div class="sharaqa-brand-text">
+              <h2>سيف للعطور</h2>
+              <span class="sharaqa-tagline">— جوهر الأناقة.</span>
+            </div>
+          </div>
+          <p class="sharaqa-about-p">
+            تركيبات عطرية فاخرة بزيوت فرنسية نقية 100% مع ضمان المعاينة الكاملة واختبار العطر والتستر المرفق قبل الدفع للمندوب.
+          </p>
         </div>
-        <div class="footer-simple-brand-text">
-          <h3>محل سيف للعطور — SEIF PERFUMES</h3>
-          <p>زيوت نقية 100% مستوردة • معاينة كاملة وفحص العطر والتستر أمام المندوب قبل الدفع</p>
+
+        <!-- العمود الثاني: استكشف -->
+        <div class="sharaqa-col">
+          <h4 class="sharaqa-col-title">استكشف</h4>
+          <ul class="sharaqa-links-list">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="#catalog">المتجر والكتالوج</a></li>
+            <li><a href="#hot-offers-section">التشكيلات والعروض</a></li>
+            <li><a href="cart.html">عربة التسوق</a></li>
+          </ul>
         </div>
+
+        <!-- العمود الثالث: خدمة العملاء -->
+        <div class="sharaqa-col">
+          <h4 class="sharaqa-col-title">خدمة العملاء</h4>
+          <ul class="sharaqa-links-list">
+            <li><a href="#">الشحن والتوصيل</a></li>
+            <li><a href="#">معاينة الشحنة والاسترجاع</a></li>
+            <li><a href="#">الأسئلة الشائعة</a></li>
+            <li><a href="https://wa.me/201044509946" target="_blank">تواصل معنا مباشر</a></li>
+          </ul>
+        </div>
+
+        <!-- العمود الرابع: وسائل التواصل -->
+        <div class="sharaqa-col">
+          <h4 class="sharaqa-col-title">تواصل معنا</h4>
+          <div class="sharaqa-social-buttons">
+            <a href="#" target="_blank" class="sharaqa-soc-btn" title="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" target="_blank" class="sharaqa-soc-btn" title="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" class="sharaqa-soc-btn" title="انستجرام"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+
       </div>
 
-      <!-- الشريط السفلي (الحقوق + التواصل + توقيع المطور) -->
-      <div class="footer-bottom-copyright">
-        <div class="container copyright-flex-dream">
-          
-          <div class="footer-copy-right">
-            <span>© 2026 محل سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.</span>
-          </div>
+      <!-- خط فاصل مستقيم -->
+      <div class="sharaqa-footer-line"></div>
 
-          <div class="footer-social-mid">
-            <a href="#" target="_blank" title="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
-            <a href="#" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#" target="_blank" title="انستجرام"><i class="fa-brands fa-instagram"></i></a>
-          </div>
-
-          <div class="footer-dev-left" dir="ltr">
-            <span class="dev-label-eng">Designed &amp; Developed by</span>
-            <a href="https://wa.me/201101579399" target="_blank" class="dev-eng-highlight" title="Contact Developer on WhatsApp">
-              ENG : Ahmed Mohamed
-            </a>
-          </div>
-
+      <!-- الشريط السفلي للحقوق والمطور -->
+      <div class="sharaqa-bottom-bar">
+        <div class="sharaqa-copyright">
+          © 2026 سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.
+        </div>
+        <div class="sharaqa-developer" dir="ltr">
+          Designed with care in Cairo by <a href="https://wa.me/201101579399" target="_blank">ENG : Ahmed Mohamed</a>
         </div>
       </div>
 
     </div>
   </footer>
 
-  <!-- 7. شريط التنقل السفلي للهواتف الذكية -->
+  <!-- 7. شريط التنقل السفلي للهواتف -->
   <div class="mobile-bottom-nav">
     <a href="index.html" class="mob-nav-item active">
       <i class="fa-solid fa-house"></i>
@@ -393,20 +292,20 @@
       </div>
       <span>السلة</span>
     </a>
-    <a href="https://wa.me/201101579399" target="_blank" class="mob-nav-item" style="color: #25d366;">
+    <a href="https://wa.me/201044509946" target="_blank" class="mob-nav-item" style="color: #25d366;">
       <i class="fa-brands fa-whatsapp"></i>
       <span>راسلنا</span>
     </a>
   </div>
 
-  <!-- 8. زر المحادثة العائم المترنح المتناوب (واتساب / ماسنجر بالنط كل 4 ثوانٍ) -->
+  <!-- 8. زر المحادثة العائم -->
   <div class="alternating-chat-widget bouncing-chat" id="alternating-chat-btn" title="تواصل معنا">
-    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">     
+    <a href="https://wa.me/201044509946" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">     
       <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
     </a>
   </div>
 
-  <!-- 9. نافذة "نظرة سريعة" المنبثقة (Quick View Modal) -->
+  <!-- 9. نافذة "نظرة سريعة" -->
   <div class="quick-modal-backdrop" id="quick-modal-overlay">
     <div class="quick-modal-card">
       <button class="close-modal-btn" id="close-quick-modal"><i class="fa-solid fa-xmark"></i></button>
@@ -414,35 +313,32 @@
     </div>
   </div>
 
-  <!-- 10. شاشة إغلاق المتجر المؤقتة بالجرد -->
+  <!-- 10. شاشة إغلاق المتجر -->
   <div class="store-closed-screen" id="store-closed-modal" style="display: none;">
-    <div class="closed-ambient-glow glow-orb-1"></div>
-    <div class="closed-ambient-glow glow-orb-2"></div>
-
     <div class="closed-glass-box">
       <img src="logo.png" alt="سيف للعطور" style="height: 60px; margin: 0 auto; display: block;">
       <h2>جاري تعتيق العطور وجرد المخزون</h2>
       <p>نقوم حالياً بتجهيز وجرد الدفعة الجديدة من العطور والبدائل العالمية بأعلى نسب تركيز.<br>نعود إليكم فوراً بإذن الله.</p>
-      <a href="https://wa.me/201101579399" target="_blank" class="btn-choose-option-green" style="margin: 0 auto; max-width: 280px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(229, 169, 100, 0.4); background: var(--accent-gold); color: #000;">        
+      <a href="https://wa.me/201044509946" target="_blank" class="btn-choose-option-green" style="margin: 0 auto; max-width: 280px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.95rem; background: #25d366; color: #fff;">        
         <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> تواصل مع الإدارة مباشرة
       </a>
     </div>
   </div>
 
-  <!-- نافذة تكبير سكرينات آراء العملاء -->
+  <!-- نافذة المعاينة المباشرة للتقييمات -->
   <div class="abasco-lightbox" id="reviews-lightbox" onclick="this.classList.remove('open')">
     <img id="lightbox-img" src="" alt="رأي العميل">
   </div>
 
-  <!-- عنصر إشعار التوست السريع -->
+  <!-- 11. عنصر إشعار التوست السريع (تم تعديل التنسيق ليكون طافياً فوق الشاشة) -->
   <div class="abasco-toast" id="abasco-toast">
     <i class="fa-solid fa-circle-check"></i>
     <span id="toast-text">تمت الإضافة إلى السلة بنجاح</span>
+    <button class="toast-close-btn" onclick="this.parentElement.classList.remove('show')">&times;</button>
   </div>
 
-  <!-- 11. برمجة الاختصارات الفورية للوحة المشرف (Ctrl+Shift+A و الضغط المطول 3 ثوانٍ) -->
+  <!-- اختصارات المشرف -->
   <script>
-    // 1. اختصار الكيبورد: Ctrl + Shift + A
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'ش')) {
         e.preventDefault();
@@ -450,31 +346,27 @@
       }
     });
 
-    // 2. الضغط المطول لمدة 3 ثوانٍ على اللوجو
     const logoImg = document.getElementById('main-store-logo');
     let pressTimer = null;
 
     if (logoImg) {
-      const startHold = (e) => {
+      const startHold = () => {
         pressTimer = setTimeout(() => {
           window.location.href = 'admin.html';
-        }, 3000); // 3000 ملي ثانية = 3 ثوانٍ
+        }, 3000);
       };
 
-      const cancelHold = () => {
-        if (pressTimer) clearTimeout(pressTimer);
-      };
+      const cancelHold = () => { if (pressTimer) clearTimeout(pressTimer); };
 
       logoImg.addEventListener('mousedown', startHold);
       logoImg.addEventListener('touchstart', startHold);
-
       logoImg.addEventListener('mouseup', cancelHold);
       logoImg.addEventListener('mouseleave', cancelHold);
       logoImg.addEventListener('touchend', cancelHold);
     }
   </script>
 
-  <!-- مكتبات Firebase الأساسية وقواعد البيانات -->
+  <!-- مكتبات Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <script src="script.js"></script>
