@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="عربة التسوق - سيف للعطور (SEIF PERFUMES) للتركيبات والعطور الفاخرة">
+  <title>عربة التسوق | سيف للعطور - SEIF PERFUMES</title>
+
+  <!-- أيقونة التبويب وشعار متجر سيف للعطور -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="shortcut icon" href="logo.png" type="image/png">
+
+  <!-- الخط الرسمي والأيقونات -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- مكتبات Firebase لقراءة حالة المتجر وقواعد البيانات -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    .cart-page-canvas {
+      padding: 24px 0 70px;
+      min-height: 75vh;
+    }
+
+    .cart-header-title {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .cart-header-title h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .cart-header-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* شاشة السلة الفارغة */
+    .empty-cart-panel {
+      display: none;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 60px 20px;
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-card);
+    }
+
+    .empty-cart-icon-wrap {
+      width: 130px;
+      height: 130px;
+      margin: 0 auto 20px;
+      border: 2px dashed var(--border-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .empty-cart-icon-wrap i.fa-basket-shopping {
+      font-size: 3.5rem;
+      color: var(--text-subtle);
+    }
+
+    .empty-cart-icon-wrap .status-cross {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      background-color: var(--discount-red);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .empty-cart-panel p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 25px;
+    }
+
+    .btn-return-shop {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: var(--dream-green);
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: var(--radius-pill);
+      font-size: 0.95rem;
+      font-weight: 800;
+      box-shadow: 0 4px 12px var(--dream-green-glow);
+      text-decoration: none;
+      transition: var(--transition-normal);
+    }
+
+    .btn-return-shop:hover {
+      background-color: var(--dream-green-hover);
+      transform: translateY(-2px);
+    }
+
+    /* تقسيم السلة الممتلئة */
+    .cart-grid-view {
+      display: none;
+      grid-template-columns: 1fr 370px;
+      gap: 25px;
+      align-items: flex-start;
+    }
+
+    /* كروت العطور داخل السلة */
+    .cart-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .cart-item-row-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .cart-item-left-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .cart-thumb-box {
+      width: 80px;
+      height: 80px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      flex-shrink: 0;
+    }
+
+    .cart-thumb-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .cart-meta-info h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .cart-item-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xs);
+      background: var(--bg-elevated);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .stepper-action-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .stepper-action-btn:hover {
+      background: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .stepper-count-val {
+      width: 32px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .cart-item-right-pricing {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .btn-trash-item {
+      color: var(--text-subtle);
+      font-size: 1.05rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .btn-trash-item:hover {
+      color: var(--discount-red);
+    }
+
+    .item-price-sum {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--discount-red);
+    }
+
+    /* بطاقة ملخص الحساب الجانبية */
+    .cart-invoice-sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      position: sticky;
+      top: 85px;
+    }
+
+    .cart-invoice-sidebar h2 {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .invoice-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .invoice-line strong {
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .invoice-divider {
+      border: none;
+      border-top: 1px dashed var(--border-color);
+      margin: 16px 0;
+    }
+
+    .invoice-total-highlight {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .invoice-total-highlight span {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .invoice-total-highlight strong {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--discount-red);
+    }
+
+    .cash-delivery-notice {
+      background: var(--dream-green-light);
+      border: 1px solid rgba(124, 179, 66, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 18px;
+      font-size: 0.82rem;
+      color: #33691e;
+      line-height: 1.5;
+    }
+
+    body.dark-mode .cash-delivery-notice {
+      background: rgba(124, 179, 66, 0.1);
+      border-color: rgba(124, 179, 66, 0.2);
+      color: #aed581;
+    }
+
+    .cash-delivery-notice strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.86rem;
+    }
+
+    .btn-proceed-checkout {
+      width: 100%;
+      background-color: var(--dream-green);
+      color: #ffffff;
+      padding: 14px;
+      border-radius: var(--radius-pill);
+      font-size: 1rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px var(--dream-green-glow);
+      cursor: pointer;
+      border: none;
+      transition: var(--transition-normal);
+    }
+
+    .btn-proceed-checkout:hover {
+      background-color: var(--dream-green-hover);
+      transform: translateY(-2px);
+    }
+
+    .back-store-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .back-store-link:hover {
+      color: var(--dream-green);
+    }
+
+    @media (max-width: 992px) {
+      .cart-grid-view {
+        grid-template-columns: 1fr;
+      }
+      .cart-invoice-sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cart-page-canvas { padding: 14px 0 60px; }
+      .cart-header-title h1 { font-size: 1.4rem; }
+      .cart-header-title p { font-size: 0.8rem; }
+
+      .cart-item-row-card {
+        padding: 10px 12px;
+        gap: 10px;
+      }
+
+      .cart-item-left-info { gap: 10px; }
+
+      .cart-thumb-box {
+        width: 60px;
+        height: 60px;
+      }
+
+      .cart-meta-info h3 {
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+      }
+
+      .item-price-sum { font-size: 1rem; }
+
+      .cart-invoice-sidebar { padding: 16px; }
+      .cart-invoice-sidebar h2 { font-size: 1rem; }
+      .invoice-total-highlight strong { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. شريط الإعلانات المتحرك العلوي -->
+  <div class="dream-top-ticker">
+    <div class="ticker-track">
+      <span>💎 عروض سيف للعطور الحصرية - ثبات يتخطى 48 ساعة محاكاة للأصلي 100%</span>
+      <span>•</span>
+      <span>🚚 معاينة الشحنة واختبار العطر والتأكد من الثبات أمام المندوب قبل الدفع</span>
+      <span>•</span>
+      <span>🎁 تستر 5 مل هدية مجانية من اختيارك مع كل زجاجة عطر</span>
+      <span>•</span>
+      <span>💵 الدفع نقداً عند الاستلام كاش بجميع المحافظات</span>
+    </div>
+  </div>
+
+  <!-- 2. رأس المتجر الموحد -->
+  <header class="dream-header">
+    <div class="container header-inner">
+      <!-- شعار محل سيف للعطور -->
+      <a href="index.html" class="dream-brand">
+        <img src="logo.png" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo">
+      </a>
+
+      <div class="dream-header-tools">
+        <!-- مفتاح الوضع الليلي -->
+        <div class="dark-mode-toggle-wrap" title="تبديل الوضع الليلي / الفاتح">
+          <label class="switch-ui" for="dark-mode-checkbox">
+            <input type="checkbox" id="dark-mode-checkbox">
+            <span class="slider-switch round">
+              <i class="fa-solid fa-sun icon-sun"></i>
+              <i class="fa-solid fa-moon icon-moon"></i>
+            </span>
+          </label>
+        </div>
+
+        <div class="header-v-divider"></div>
+
+        <a href="index.html" class="dream-brand" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-decoration: none;">
+          <i class="fa-solid fa-house"></i> الرئيسية
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. مساحة عربة التسوق -->
+  <main class="cart-page-canvas">
+    <div class="container">
+      
+      <div class="cart-header-title">
+        <h1>عربة التسوق</h1>
+        <p id="cart-counter-subtitle">جاري فحص العطور المختارة...</p>
+      </div>
+
+      <!-- الحالة 1: السلة فارغة -->
+      <section class="empty-cart-panel" id="empty-cart-box">
+        <div class="empty-cart-icon-wrap">
+          <i class="fa-solid fa-basket-shopping"></i>
+          <div class="status-cross"><i class="fa-solid fa-xmark"></i></div>
+        </div>
+        <p>لا توجد أي عطور في عربة التسوق حالياً. اختر عطرك المفضل لتحصل على تستر 5 مل هدية مجانية مع كل زجاجة.</p>
+        <a href="index.html" class="btn-return-shop">
+          <i class="fa-solid fa-arrow-right"></i> استعراض تشكيلة العطور
+        </a>
+      </section>
+
+      <!-- الحالة 2: السلة تحتوي على عطور -->
+      <section class="cart-grid-view" id="filled-cart-box">
+        
+        <!-- قائمة العطور المضافة -->
+        <div class="cart-products-list" id="cart-items-container">
+          <!-- يتم ملؤها بالجافاسكريبت -->
+        </div>
+
+        <!-- ملخص الفاتورة -->
+        <aside class="cart-invoice-sidebar">
+          <h2>ملخص الفاتورة</h2>
+          <div class="invoice-line">
+            <span>إجمالي العطور:</span>
+            <strong id="subtotal-display">0 ج</strong>
+          </div>
+
+          <div class="invoice-line">
+            <span>التسترات الهدية:</span>
+            <strong id="gifts-display" style="color: var(--dream-green);">0 تسترات مجانية 🎁</strong>
+          </div>
+
+          <div class="invoice-line">
+            <span>مصاريف الشحن:</span>
+            <strong style="color: var(--dream-green);">تُحدد حسب المحافظة</strong>
+          </div>
+
+          <hr class="invoice-divider">
+
+          <div class="invoice-total-highlight">
+            <span>المجموع المستحق:</span>
+            <strong id="final-total-display">0 ج</strong>
+          </div>
+
+          <div class="cash-delivery-notice">
+            <strong>الدفع نقداً عند الاستلام كاش</strong>
+            جميع الطلبات يتم تسليمها مع حق المعاينة واختبار العطر والتستر المرفق أمام المندوب قبل الدفع.
+          </div>
+
+          <!-- الانتقال لصفحة كتابة العنوان وتأكيد الشحنة -->
+          <button class="btn-proceed-checkout" onclick="window.location.href='checkout.html'">
+            <span>متابعة إتمام الطلب</span>
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+
+          <a href="index.html" class="back-store-link">
+            <i class="fa-solid fa-plus"></i> إضافة عطور أخرى للطلب
+          </a>
+        </aside>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- tذيل المتجر -->
+  <footer class="dream-footer">
+    <div class="footer-bottom-glow"></div>
+    <div class="container">
+      
+      <div class="footer-simple-center">
+        <div class="footer-simple-card">
+          <img src="logo.png" alt="محل سيف للعطور">
+        </div>
+        <div class="footer-simple-brand-text">
+          <h3>متجر سيف للعطور - SEIF PERFUMES</h3>
+          <p>زيوت عطرية أصلية 100% • ثبات عالي • اختبار وتجربة أمام المندوب قبل الدفع</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex-dream">
+          
+          <div class="footer-copy-right">
+            <span>© 2026 سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.</span>
+          </div>
+
+          <div class="footer-social-mid">
+            <a href="#" target="_blank" title="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" title="انستجرام"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+
+          <div class="footer-dev-left" dir="ltr">
+            <span class="dev-label-eng">Designed &amp; Developed by</span>
+            <a href="https://wa.me/201101579399" target="_blank" class="dev-eng-highlight" title="Contact Developer on WhatsApp">
+              ENG : Ahmed Mohamed
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- 5. زر المحادثة العائم المتناوب -->
+  <div class="alternating-chat-widget" id="alternating-chat-btn" title="تواصل معنا">
+    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
+      <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
+    </a>
+  </div>
+
+  <!-- شاشة الصيانة الإدارية -->
+  <div class="store-closed-screen" id="store-closed-modal" style="display: none;">
+    <div class="closed-glass-box">
+      <img src="logo.png" alt="سيف للعطور" style="height: 55px; margin: 0 auto;">
+      <h2>جاري تحديث قائمة العطور</h2>
+      <p>نقوم حالياً بإضافة تشكيلة عطرية جديدة وتحديث الأسعار والمخزون.<br>نعود إليكم خلال وقت قصير بإذن الله.</p>
+      <a href="https://wa.me/201101579399" target="_blank" class="btn-send-whatsapp-order" style="margin: 0 auto; max-width: 280px; display:flex; align-items:center; justify-content:center; gap:10px; background:#25d366; color:#fff; padding:14px; border-radius:50px; font-weight:900; text-decoration:none;">
+        <i class="fa-brands fa-whatsapp"></i> تواصل مع إدارة المتجر مباشرة
+      </a>
+    </div>
+  </div>
+
+  <!-- المحرك البرمجي للسلة -->
+  <script>
+    'use strict';
+
+    // 1. تهيئة مشروع Firebase لمتجر سيف للعطور
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS8OE9Q",
+      authDomain: "seif-perfumes.firebaseapp.com",
+      projectId: "seif-perfumes",
+      storageBucket: "seif-perfumes.firebasestorage.app",
+      messagingSenderId: "464823513051",
+      appId: "1:464823513051:web:2ef7412e119dac739981fe",
+      measurementId: "G-NW3VJW5BBH"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // مزامنة حالة إغلاق المتجر
+    function applyStoreClosedState(isClosed) {
+      const modal = document.getElementById('store-closed-modal');
+      if (!modal) return;
+      if (isClosed) {
+        modal.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+      } else {
+        modal.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+      }
+    }
+
+    applyStoreClosedState(localStorage.getItem('seif_store_closed') === 'true');
+    db.collection('settings').doc('status').onSnapshot(doc => {
+      if (doc.exists) {
+        const closed = doc.data().isClosed === true;
+        localStorage.setItem('seif_store_closed', closed ? 'true' : 'false');
+        applyStoreClosedState(closed);
+      }
+    }, err => {});
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem('seif_cart')) || [];
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem('seif_cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function renderCart() {
+      const cart = getCart();
+      const emptyBox = document.getElementById('empty-cart-box');
+      const filledBox = document.getElementById('filled-cart-box');
+      const itemsContainer = document.getElementById('cart-items-container');
+      const subtitle = document.getElementById('cart-counter-subtitle');
+      const subtotalEl = document.getElementById('subtotal-display');
+      const giftsEl = document.getElementById('gifts-display');
+      const finalTotalEl = document.getElementById('final-total-display');
+
+      const totalBottles = cart.reduce((acc, i) => acc + (Number(i.quantity) || 1), 0);
+      const totalPrice = cart.reduce((acc, i) => acc + (Number(i.price || 300) * (Number(i.quantity) || 1)), 0);
+
+      if (cart.length === 0) {
+        emptyBox.style.display = 'block';
+        filledBox.style.display = 'none';
+        subtitle.textContent = 'سلة المشتريات فارغة';
+        return;
+      }
+
+      emptyBox.style.display = 'none';
+      filledBox.style.display = 'grid';
+      subtitle.textContent = `لديك (${totalBottles}) زجاجات عطر في عربة التسوق`;
+
+      itemsContainer.innerHTML = cart.map(item => {
+        const itemSize = item.size || 50;
+        const itemPrice = Number(item.price || 300);
+        const itemSum = itemPrice * Number(item.quantity || 1);
+
+        return `
+        <div class="cart-item-row-card">
+          <div class="cart-item-left-info">
+            <div class="cart-thumb-box">
+              <img src="${item.image || 'image/S1.png'}" alt="${item.name || 'عطر'}">
+            </div>
+            <div class="cart-meta-info">
+              <h3>${item.name || 'عطر فاخر'}</h3>
+              <div style="font-size:0.78rem; font-weight:800; color:var(--dream-green); margin-bottom:2px;">
+                <i class="fa-solid fa-bottle-droplet"></i> الحجم: ${itemSize} مل
+              </div>
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">
+                🎁 يمنحك ${item.quantity} تستر 5 مل هدية
+              </div>
+              <div class="cart-item-stepper">
+                <button class="stepper-action-btn" onclick="updateItemQuantity('${item.id}', ${itemSize}, 1)">+</button>
+                <span class="stepper-count-val">${item.quantity}</span>
+                <button class="stepper-action-btn" onclick="updateItemQuantity('${item.id}', ${itemSize}, -1)">-</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="cart-item-right-pricing">
+            <button class="btn-trash-item" onclick="deleteCartItem('${item.id}', ${itemSize})" title="حذف العطر">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+            <span class="item-price-sum">${itemSum.toLocaleString('ar-EG')} ج</span>
+          </div>
+        </div>
+      `;}).join('');
+
+      subtotalEl.textContent = `${totalPrice.toLocaleString('ar-EG')} ج`;
+      if (giftsEl) giftsEl.textContent = `${totalBottles} تسترات مجانية (5مل) 🎁`;
+      finalTotalEl.textContent = `${totalPrice.toLocaleString('ar-EG')} ج`;
+    }
+
+    window.updateItemQuantity = function(id, size, delta) {
+      let cart = getCart();
+      const item = cart.find(i => String(i.id) === String(id) && Number(i.size) === Number(size));
+      if (!item) return;
+
+      item.quantity = (Number(item.quantity) || 1) + delta;
+      if (item.quantity <= 0) {
+        cart = cart.filter(i => !(String(i.id) === String(id) && Number(i.size) === Number(size)));
+      }
+      saveCart(cart);
+    };
+
+    window.deleteCartItem = function(id, size) {
+      let cart = getCart();
+      cart = cart.filter(i => !(String(i.id) === String(id) && Number(i.size) === Number(size)));
+      saveCart(cart);
+    };
+
+    // الداكن والتواصل
+    const darkCheckbox = document.getElementById('dark-mode-checkbox');
+    if (localStorage.getItem('seif_perfumes_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+      if (darkCheckbox) darkCheckbox.checked = true;
+    }
+    darkCheckbox?.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'light');
+      }
+    });
+
+    const chatLink = document.getElementById('chat-link');
+    const chatIcon = document.getElementById('chat-icon');
+    let isWhatsApp = true;
+    setInterval(() => {
+      isWhatsApp = !isWhatsApp;
+      if (!chatIcon || !chatLink) return;
+      chatIcon.classList.add('rotate-anim');
+      setTimeout(() => {
+        if (isWhatsApp) {
+          chatLink.className = 'chat-circle-link whatsapp-mode';
+          chatLink.href = 'https://wa.me/201101579399';
+          chatIcon.className = 'fa-brands fa-whatsapp chat-icon';
+        } else {
+          chatLink.className = 'chat-circle-link messenger-mode';
+          chatLink.href = 'https://m.me/seifperfumes';
+          chatIcon.className = 'fa-brands fa-facebook-messenger chat-icon';
+        }
+        chatIcon.classList.remove('rotate-anim');
+      }, 250);
+    }, 5000);
+
+    document.addEventListener('DOMContentLoaded', renderCart);
+  </script>
+</body>
+</html>
