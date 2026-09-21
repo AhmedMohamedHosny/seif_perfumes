@@ -26,8 +26,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const perfumesCol = collection(db, "perfumes");
 const ordersCol = collection(db, "orders");
+const reviewsCol = collection(db, "reviews");
 const settingsDoc = doc(db, "settings", "storeConfig");
-
 /* =========================================================
    2. إدارة حالة التطبيق
    ========================================================= */
@@ -45,7 +45,9 @@ let currentPfpSize = 50;
 let currentPfpQty = 1;
 
 let activeCoupon = null;
-let adminWhatsappNumber = "201101579399";
+let adminWhatsappNumber = "201044509946";
+let reviewsPlaceholderText = "سيتم نشر آراء العملاء قريباً 🌹";
+let lastReviewsList = [];
 
 const SIZE_MULTIPLIERS = {
   30: 0.65,
@@ -215,13 +217,20 @@ function renderCatalog() {
   if (noProds) {
     if (list.length === 0) {
       noProds.style.display = "flex";
+      noProds.classList.remove("fade-refresh");
+      void noProds.offsetWidth;
+      noProds.classList.add("fade-refresh");
+
       const t = noProds.querySelector("h3");
       const p = noProds.querySelector("p");
+
       if (products.length === 0) {
         if (t) t.textContent = "لسه مفيش عطور معروضة";
         if (p) p.textContent = "جاري تجهيز التشكيلة الجديدة، تابعنا قريباً 🌹";
       } else {
-        if (t) t.textContent = "مفيش نتائج مطابقة للبحث";
+        const catNames = { men: "رجالي", women: "حريمي", unisex: "للجنسين", bestseller: "الأكثر مبيعاً", favorites: "المفضلة" };
+        const label = catNames[currentCategory];
+        if (t) t.textContent = label ? `لسه مفيش عطور ${label} معروضة` : "مفيش نتائج مطابقة للبحث";
         if (p) p.textContent = "جرّب تغيّر القسم أو كلمة البحث.";
       }
     } else {
@@ -780,7 +789,7 @@ document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
 });
 
 document.getElementById("copyWalletBtn")?.addEventListener("click", () => {
-  const num = document.getElementById("seifWalletNumber")?.textContent || "01101579399";
+  const num = document.getElementById("seifWalletNumber")?.textContent || "201044509946";
   navigator.clipboard.writeText(num).then(() => {
     showToast("تم النسخ بنجاح 📋", `تم نسخ رقم التحويل: ${num}`);
   });
@@ -1088,13 +1097,64 @@ onSnapshot(settingsDoc, (snap) => {
       if (clean.startsWith("0")) clean = "2" + clean;
       adminWhatsappNumber = clean;
     }
+    if (d.reviewsPlaceholder) {
+      reviewsPlaceholderText = d.reviewsPlaceholder;
+      renderReviews(lastReviewsList);
+    }
   }
+});
+
+/* ===== آراء وتجارب العملاء (شريط متحرك) ===== */
+function renderReviews(list) {
+  const track = document.getElementById("reviews-compact-track");
+  if (!track) return;
+
+  if (!list || list.length === 0) {
+    track.style.animation = "none";
+    track.style.justifyContent = "center";
+    track.style.width = "100%";
+    track.innerHTML = `<div class="reviews-empty-msg">${escapeHtml(reviewsPlaceholderText)}</div>`;
+    return;
+  }
+
+  track.style.animation = "";
+  track.style.width = "";
+  track.style.justifyContent = "";
+
+  const cardsHtml = list.map(r => `
+    <div class="review-mini-card" onclick="openReviewLightbox('${String(r.image || "").replace(/'/g, "")}')">
+      <img src="${r.image || 'image/S1.png'}" alt="رأي عميل" loading="lazy">
+    </div>
+  `).join("");
+
+  track.innerHTML = cardsHtml + cardsHtml;
+}
+
+window.openReviewLightbox = function (src) {
+  if (!src) return;
+  const lightbox = document.getElementById("reviews-lightbox");
+  const img = document.getElementById("lightbox-img");
+  if (img) img.src = src;
+  if (lightbox) lightbox.classList.add("open");
+};
+
+onSnapshot(reviewsCol, (snapshot) => {
+  const list = [];
+  snapshot.forEach(d => list.push({ id: d.id, ...d.data() }));
+  lastReviewsList = list;
+  renderReviews(list);
 });
 
 /* =========================================================
    11. التأثيرات والتفاعلات البصرية (UI & Animations)
    ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
+
+  // تكرار نص الشريط العلوي عشان يتحرك بشكل متصل بدون فراغ
+  const tickerEl = document.getElementById('fade-ticker-text');
+  if (tickerEl) {
+    tickerEl.innerHTML = tickerEl.innerHTML + tickerEl.innerHTML;
+  }
 
   // الوضع الداكن
   const darkModeInput = document.querySelector('.switch-ui input');
