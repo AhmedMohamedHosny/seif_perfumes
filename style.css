@@ -1675,8 +1675,12 @@ body.dark-mode .sharaqa-style-footer {
   .sharaqa-col-title { font-size: 0.78rem; margin-bottom: 10px; }
   .sharaqa-links-list a { font-size: 0.68rem; }
   .sharaqa-links-list li { margin-bottom: 7px; }
-  .sharaqa-social-buttons { flex-wrap: wrap; gap: 6px; }
-  .sharaqa-soc-btn { width: 30px; height: 30px; font-size: 0.75rem; }
+  .sharaqa-social-buttons {
+    flex-direction: column !important;
+    align-items: flex-start;
+    gap: 7px;
+  }
+  .sharaqa-soc-btn { width: 28px; height: 28px; font-size: 0.7rem; }
   .sharaqa-footer-line { margin: 22px 0 14px; }
   .sharaqa-bottom-bar { font-size: 0.66rem; text-align: center; }
 }
@@ -1705,21 +1709,11 @@ body.dark-mode .sharaqa-style-footer {
   }
   .capsule-text-col { flex: 1; min-width: 0; text-align: right; }
   .capsule-text-col h3 {
-    font-size: 0.74rem;
-    line-height: 1.3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    white-space: normal;
   }
-  .capsule-text-col p {
-    font-size: 0.6rem;
-    line-height: 1.3;
-    color: var(--text-muted);
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+
   .capsule-verified-tag {
     font-size: 0.56rem;
     padding: 3px 7px;
@@ -1752,4 +1746,24 @@ body.dark-mode .sharaqa-style-footer {
   .switch-ui { width: 44px; height: 24px; }
   .slider-switch::before { height: 18px; width: 18px; }
   .switch-ui input:checked + .slider-switch::before { transform: translateX(-20px); }
+}
+/* تصغير وتنسيق الفوتر على الموبايل */
+@media (max-width: 768px) {
+  .sharaqa-footer-grid {
+    grid-template-columns: 1.5fr 1fr 1fr 0.7fr !important;
+    gap: 8px !important;
+  }
+  .sharaqa-col-title { font-size: 0.7rem !important; margin-bottom: 8px !important; }
+  .sharaqa-links-list a { font-size: 0.6rem !important; line-height: 1.4; }
+  .sharaqa-links-list li { margin-bottom: 6px !important; }
+  .sharaqa-about-p { font-size: 0.6rem !important; line-height: 1.55 !important; }
+  .sharaqa-brand-text h2 { font-size: 0.82rem !important; }
+  .sharaqa-tagline { font-size: 0.6rem !important; }
+  .sharaqa-footer-logo { height: 30px !important; }
+  .sharaqa-bottom-bar { font-size: 0.6rem !important; line-height: 1.6; }
+  .sharaqa-footer-line { margin: 18px 0 12px !important; }
+}
+@media (max-width: 768px) {
+  .alternating-chat-widget { bottom: 92px !important; left: 10px !important; }
+  .chat-circle-link { width: 42px !important; height: 42px !important; font-size: 1.2rem !important; }
 }
