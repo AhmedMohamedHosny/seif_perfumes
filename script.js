@@ -1,3 +1,8 @@
+/* =========================================================
+   محل سيف للعطور (SEIF PERFUMES) - الملف المدمج الكامل
+   الملف: script.js (يشمل الفايربيز + التأثيرات والتفاعلات)
+   ========================================================= */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
   getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, getDoc, 
@@ -24,9 +29,9 @@ const ordersCol = collection(db, "orders");
 const settingsDoc = doc(db, "settings", "storeConfig");
 
 /* =========================================================
-   2. إدارة حالة التطبيق (المتجر فارغ تماماً ويعتمد على الأدمن)
+   2. إدارة حالة التطبيق
    ========================================================= */
-let products = []; // تم إزالة العطور الثابتة؛ تُجلب تلقائياً من الفايربيز
+let products = [];
 let cart = loadLocal("seif_cart", []);
 let wishlist = loadLocal("seif_wishlist", []);
 let currentCategory = "all";
@@ -104,7 +109,7 @@ function generateProductCardHtml(p) {
   const catBadgeClass = p.category === "women" ? "badge-pink" : p.category === "men" ? "badge-blue" : "badge-gold";
 
   return `
-    <article class="compact-perfume-card" data-id="${p.id}">
+    <article class="compact-perfume-card dream-product-card" data-id="${p.id}">
       <div class="card-visual-wrap" onclick="openProductPage('${p.id}')">
         ${p.bestseller ? '<span class="card-star-badge">الأكثر مبيعاً 🔥</span>' : ''}
         
@@ -136,7 +141,7 @@ function generateProductCardHtml(p) {
           </div>
 
           <button type="button" 
-                  class="card-quick-buy-btn" 
+                  class="card-quick-buy-btn btn-choose-option-green" 
                   data-action="quick-buy" 
                   data-id="${p.id}">
             <span>شراء ⚡</span>
@@ -233,7 +238,7 @@ function renderPagination(totalPages) {
 
   let html = "";
   for (let i = 1; i <= totalPages; i++) {
-    html += `<button type="button" class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    html += `<button type="button" class="page-btn page-num ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
   }
 
   container.innerHTML = html;
@@ -954,7 +959,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// شريط البحث المنسدل
 const searchDrawer = document.getElementById("searchDrawer");
 const searchInput = document.getElementById("globalSearchInput");
 
@@ -977,7 +981,6 @@ searchInput?.addEventListener("input", (e) => {
   renderCatalog();
 });
 
-// التجميع للفئات والترتيب
 document.getElementById("categoryTabs")?.addEventListener("click", (e) => {
   const btn = e.target.closest(".capsule-btn");
   if (!btn) return;
@@ -1081,6 +1084,113 @@ onSnapshot(settingsDoc, (snap) => {
       adminWhatsappNumber = clean;
     }
   }
+});
+
+/* =========================================================
+   11. التأثيرات والتفاعلات البصرية (UI & Animations)
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+
+  // الوضع الداكن
+  const darkModeInput = document.querySelector('.switch-ui input');
+  const savedTheme = localStorage.getItem('seif_perfumes_theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    if (darkModeInput) darkModeInput.checked = true;
+  }
+  if (darkModeInput) {
+    darkModeInput.addEventListener('change', () => {
+      if (darkModeInput.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'light');
+      }
+    });
+  }
+
+  // طريقة العرض (Grid / List)
+  const viewBtns = document.querySelectorAll('.view-btn');
+  viewBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const viewType = btn.getAttribute('data-view');
+      if (viewType === 'grid') {
+        document.body.classList.remove('view-list-active');
+        document.body.classList.add('view-grid-active');
+        localStorage.setItem('seif_view_mode', 'grid');
+      } else {
+        document.body.classList.remove('view-grid-active');
+        document.body.classList.add('view-list-active');
+        localStorage.setItem('seif_view_mode', 'list');
+      }
+    });
+  });
+
+  // زر المحادثة المترنح والنط (Bouncing Chat)
+  const chatLink = document.querySelector('.chat-circle-link');
+  const chatIcon = document.querySelector('.chat-icon');
+  if (chatLink && chatIcon) {
+    const whatsappUrl = `https://wa.me/${adminWhatsappNumber}`; 
+    const messengerUrl = "https://m.me/seifperfumes";
+    let isWhatsApp = true;
+
+    setInterval(() => {
+      chatIcon.classList.add('rotate-anim');
+      setTimeout(() => {
+        if (isWhatsApp) {
+          chatLink.classList.remove('whatsapp-mode');
+          chatLink.classList.add('messenger-mode');
+          chatLink.href = messengerUrl;
+          chatIcon.className = 'chat-icon fa-brands fa-facebook-messenger rotate-anim';
+          isWhatsApp = false;
+        } else {
+          chatLink.classList.remove('messenger-mode');
+          chatLink.classList.add('whatsapp-mode');
+          chatLink.href = `https://wa.me/${adminWhatsappNumber}`;
+          chatIcon.className = 'chat-icon fa-brands fa-whatsapp rotate-anim';
+          isWhatsApp = true;
+        }
+      }, 250);
+
+      setTimeout(() => {
+        chatIcon.classList.remove('rotate-anim');
+      }, 500);
+    }, 5000);
+  }
+
+  // الفلاتر الجانبية والأكورديون
+  const filterToggleBtn = document.querySelector('.desktop-filter-btn');
+  const mainLayout = document.querySelector('.dream-main-layout');
+  if (filterToggleBtn && mainLayout) {
+    filterToggleBtn.addEventListener('click', () => {
+      mainLayout.classList.toggle('sidebar-active');
+    });
+  }
+
+  const filterHeaders = document.querySelectorAll('.filter-card-header');
+  filterHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+      const parentAccordion = header.closest('.filter-card-accordion');
+      if (parentAccordion) parentAccordion.classList.toggle('open');
+    });
+  });
+
+  // حماية المحتوى من الكليك يمين واختصارات المطورين
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (
+      e.key === 'F12' ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
+      (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
+    ) {
+      e.preventDefault();
+    }
+  });
+
 });
 
 // تشغيل الشاشات
