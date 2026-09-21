@@ -6,9 +6,9 @@
   <title>سيف للعطور | لوحة تحكم المتجر (SEIF PERFUMES Admin)</title>
 
   <!-- أيقونة التبويب وشعار متجر سيف للعطور -->
-  <link rel="icon" type="image/png" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
-  <link rel="shortcut icon" href="logo.png" type="image/png">
+  <link rel="icon" type="image/png" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="shortcut icon" href="logo.jpg" type="image/png">
 
   <!-- الخطوط والأيقونات -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -470,7 +470,7 @@
   <div id="admin-login-gate" style="position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:9999999; background:#0f172a; display:flex; align-items:center; justify-content:center; padding:16px;">
     <form id="admin-login-form" style="background:#1e293b; padding:34px 28px; border-radius:14px; width:100%; max-width:360px; border:1px solid #334155;">
       <div style="text-align:center; margin-bottom:20px;">
-        <img src="logo.png" style="height:56px; margin:0 auto 10px;">
+        <img src="logo.jpg" style="height:56px; margin:0 auto 10px;">
         <h2 style="color:#fff; font-size:1.15rem; font-weight:900;">دخول لوحة تحكم سيف للعطور</h2>
       </div>
       <div style="margin-bottom:12px;">
@@ -489,7 +489,7 @@
   <!-- 1. القائمة الجانبية -->
   <aside class="admin-sidebar">
     <div class="sidebar-brand-box">
-      <img src="logo.png" alt="سيف للعطور" class="sidebar-brand-logo">
+      <img src="logo.jpg" alt="سيف للعطور" class="sidebar-brand-logo">
       <div class="sidebar-brand-titles">
         <h2>متجر سيف للعطور</h2>
         <span>لوحة التحكم الإدارية</span>
@@ -832,7 +832,7 @@
     async function loadInventoryData() {
       const tbody = document.getElementById('inventory-tbody');
       try {
-        const snapshot = await db.collection('products').get();
+        const snapshot = await db.collection('perfumes').get();
         adminInventory = [];
         snapshot.forEach(doc => adminInventory.push({ id: doc.id, ...doc.data() }));
       } catch (err) {
@@ -849,8 +849,9 @@
         <tr>
           <td>
             <div class="product-row-preview">
-              <img src="${item.image || 'image/S1.png'}" alt="${item.title}">
-              <strong>${item.title}</strong>
+              <img src="${item.image || 'image/S1.png'}" alt="${item.name || ''}">
+              <strong>${item.name || 'بدون اسم'}</strong>
+              
             </div>
           </td>
           <td><strong>${item.brand || 'عام'}</strong></td>
@@ -868,22 +869,31 @@
 
     document.getElementById('product-master-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const specs = document.getElementById('prod-specs-text').value.trim();
+      const imgs = window.adminUploadedImages || [];
+
       const payload = {
-        title: document.getElementById('prod-name').value.trim(),
+        name: document.getElementById('prod-name').value.trim(),
         brand: document.getElementById('prod-brand').value,
         category: document.getElementById('prod-category').value,
         price: parseFloat(document.getElementById('prod-price').value) || 300,
-        oldPrice: parseFloat(document.getElementById('prod-old-price').value) || 450,
-        specs: document.getElementById('prod-specs-text').value.trim() || 'عطر فاخر بثبات 48 ساعة',
-        image: 'image/S1.png',
+        oldPrice: parseFloat(document.getElementById('prod-old-price').value) || 0,
+        notes: specs || 'توليفة عطرية مركزة وثابتة تدوم طويلاً',
+        desc: specs,
+        image: imgs[0] || 'image/S1.png',
+        images: imgs,
+        bestseller: false,
         stock: 25,
-        inStock: true
+        stocks: { 30: 25, 50: 25, 100: 25 },
+        createdAt: new Date()
       };
 
       try {
-        await db.collection('products').add(payload);
-        alert('🎉 تم نشر العطر بنجاح في متجر سيف للعطور!');
+        await db.collection('perfumes').add(payload);
+        alert('🎉 تم نشر العطر بنجاح وظهر في المتجر فوراً!');
         document.getElementById('product-master-form').reset();
+        window.adminUploadedImages = [];
+        document.getElementById('thumbs-preview-box').innerHTML = '<div class="thumb-slot">لم تتحدد صور</div>';
         loadInventoryData();
       } catch (err) {
         alert('حدث خطأ أثناء الحفظ: ' + err.message);
@@ -892,7 +902,7 @@
 
     window.deleteProduct = async function(id) {
       if (confirm('هل أنت متأكد من حذف هذا العطر نهائياً؟')) {
-        await db.collection('products').doc(id).delete();
+        await db.collection('perfumes').doc(id).delete();
         loadInventoryData();
       }
     };
@@ -938,7 +948,38 @@
       navigator.clipboard.writeText(decodeURIComponent(text.replace(/%0A/g, '\n')));
       alert('تم نسخ بيانات الشحن بنجاح!');
     };
+    window.adminUploadedImages = [];
 
+    function compressImage(file, maxW = 700, quality = 0.7) {
+      return new Promise(res => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxW / img.width);
+            const c = document.createElement('canvas');
+            c.width = img.width * scale;
+            c.height = img.height * scale;
+            c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+            res(c.toDataURL('image/jpeg', quality));
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('prod-file-input')?.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files).slice(0, 4);
+      const box = document.getElementById('thumbs-preview-box');
+      window.adminUploadedImages = [];
+      box.innerHTML = '';
+      for (const f of files) {
+        const data = await compressImage(f);
+        window.adminUploadedImages.push(data);
+        box.innerHTML += `<div class="thumb-slot"><img src="${data}"></div>`;
+      }
+    });
     document.addEventListener('DOMContentLoaded', () => {
       populateTaxonomy();
       loadInventoryData();
