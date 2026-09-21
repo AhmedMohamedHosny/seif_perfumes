@@ -1140,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatIcon = document.querySelector('.chat-icon');
   if (chatLink && chatIcon) {
     const whatsappUrl = `https://wa.me/${adminWhatsappNumber}`; 
-    const messengerUrl = "https://m.me/seifperfumes";
+    const messengerUrl = "https://www.facebook.com/share/19QeSsq7MN/";
     let isWhatsApp = true;
 
     setInterval(() => {
