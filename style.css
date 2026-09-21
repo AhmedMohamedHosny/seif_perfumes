@@ -1726,7 +1726,12 @@ body.dark-mode .sharaqa-style-footer {
 .custom-sort-menu.open { display: block !important; }
 .custom-sort-container { position: relative; }
 @media (max-width: 768px) {
-  .custom-sort-menu { left: auto !important; right: 0 !important; width: 190px; }
+  .custom-sort-menu {
+    left: 0 !important;
+    right: auto !important;
+    width: 190px;
+    max-width: calc(100vw - 24px);
+  }
 }
 /* ترتيب الهيدر على الموبايل */
 @media (max-width: 768px) {
