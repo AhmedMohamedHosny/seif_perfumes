@@ -1,11 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
   getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, getDoc, 
-  increment, setDoc, deleteDoc, serverTimestamp 
+  increment 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 /* =========================================================
-   1. تهيئة مشروع فايربيز الجديد الخاص بـ (سيف للعطور)
+   1. تهيئة مشروع فايربيز (سيف للعطور)
    ========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS8OE9Q",
@@ -21,118 +21,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const perfumesCol = collection(db, "perfumes");
 const ordersCol = collection(db, "orders");
-const couponsCol = collection(db, "coupons");
 const settingsDoc = doc(db, "settings", "storeConfig");
 
 /* =========================================================
-   2. لستة الـ 99 عطراً الكاملة من سيف للعطور مع تصنيف ذكي
+   2. إدارة حالة التطبيق (المتجر فارغ تماماً ويعتمد على الأدمن)
    ========================================================= */
-const initialCatalog = [
-  { id: 1, name: "بكرات روج (Baccarat Rouge)", category: "unisex", price: 420, notes: "عنبر الحوت، ياسمين، زعفران، خشب الأرز", bestseller: true },
-  { id: 2, name: "استرونجر وز يو انتنسلي (Stronger With You Intensely)", category: "men", price: 380, notes: "فانيليا دافئة، فلفل وردي، قرفة، عنبر", bestseller: true },
-  { id: 3, name: "استرونجر عنبر (Stronger Amber)", category: "men", price: 390, notes: "عنبر ملكي، خشب الغاياك، لافندر ناعم", bestseller: false },
-  { id: 4, name: "لومال الكسير (Le Male Elixir)", category: "men", price: 410, notes: "عسل نقي، فانيليا داكنة، حبوب التونكا، لافندر", bestseller: true },
-  { id: 5, name: "نوتيكا فوياج (Nautica Voyage)", category: "men", price: 290, notes: "تفاح أخضر، لوتس مائي، خشب الأرز، مسك منعش", bestseller: false },
-  { id: 6, name: "لوبو باراديس جاردن (Le Beau Paradise Garden)", category: "men", price: 420, notes: "جوز هند استوائي، زنجبيل، نعناع، أخشاب مالحة", bestseller: true },
-  { id: 7, name: "إمبريال فالي قصة (Imperial Valley)", category: "unisex", price: 450, notes: "دافانا، برغموت إيطالي، روزماري، جلد أسود، عنبر", bestseller: true },
-  { id: 8, name: "عود وصال (Oud Wisal)", category: "unisex", price: 340, notes: "عود ناعم، مسك أبيض، ورد دمشقي", bestseller: false },
-  { id: 9, name: "تو وان تو (212 Sexy / VIP)", category: "men", price: 320, notes: "حمضيات منعشة، زنجبيل، فلفل أسود، نجيل الهند", bestseller: false },
-  { id: 10, name: "فانتوم (Phantom Paco Rabanne)", category: "men", price: 360, notes: "لافندر كريمي، ليمون منعش، فانيليا ترابية", bestseller: false },
-  { id: 11, name: "دنهل ديزاير (Dunhill Desire)", category: "men", price: 300, notes: "تفاح أحمر، زهر البرتقال، خشب الساج، فانيليا", bestseller: false },
-  { id: 12, name: "اسكلبتشر (Sculpture)", category: "men", price: 280, notes: "أزهار البرتقال، برغموت، بنزوين، أرز", bestseller: false },
-  { id: 13, name: "خمرة (Khamrah)", category: "unisex", price: 380, notes: "قرفة، تمر حلو، خشب الأرز، جوزة الطيب، فانيليا", bestseller: true },
-  { id: 14, name: "خمرة قهوة (Khamrah Qahwa)", category: "unisex", price: 390, notes: "قهوة عربية محمصة، قرفة، هيل، كراميل مدخن", bestseller: true },
-  { id: 15, name: "عود مضاوي (Oud Madawi)", category: "unisex", price: 420, notes: "خوخ مجفف، زهر البرتقال، عود فاخر، عنبر ملكي", bestseller: true },
-  { id: 16, name: "مضاوي جولد (Madawi Gold)", category: "women", price: 430, notes: "هيل، فواكه استوائية، أناناس، فانيليا نقية", bestseller: false },
-  { id: 17, name: "هوجو بوس (Hugo Boss Bottled)", category: "men", price: 310, notes: "تفاح مقرمش، قرفة خشبية، خشب الزيتون", bestseller: false },
-  { id: 18, name: "ايماجنيشن لويس فيتون (Imagination)", category: "men", price: 490, notes: "شاي أسود صيني، زهر البرتقال، قرفة ناعمة، أمبروكسان", bestseller: true },
-  { id: 19, name: "وان مليون (1 Million)", category: "men", price: 340, notes: "يوسفي، قرفة حارة، جلد فاخر، عنبر دافئ", bestseller: true },
-  { id: 20, name: "اكوا دي جيو (Acqua Di Gio)", category: "men", price: 350, notes: "نفحات بحرية، برغموت كالابريا، زهر البرتقال، باتشولي", bestseller: false },
-  { id: 21, name: "فلير (Fleur Narcotique)", category: "unisex", price: 440, notes: "ليتشي، خوخ طازج، زهر البرتقال، بيوني، طحلب السنديان", bestseller: true },
-  { id: 22, name: "اومبر ليذر (Ombre Leather)", category: "unisex", price: 450, notes: "جلد أسود مدبوغ، هيل فاخر، ياسمين جبلي، باتشولي", bestseller: true },
-  { id: 23, name: "بي ام (BM Silver)", category: "men", price: 320, notes: "حمضيات رياضية، خشب الصندل، مسك فضي ناعم", bestseller: false },
-  { id: 24, name: "باد بوي (Bad Boy Carolina Herrera)", category: "men", price: 360, notes: "فلفل أسود وأبيض، كاكاو مر، حبوب التونكا، برغموت", bestseller: false },
-  { id: 25, name: "انفكتوس (Invictus)", category: "men", price: 330, notes: "جريب فروت، نسيم البحر، ورق لورا، خشب الغاياك", bestseller: false },
-  { id: 26, name: "انفكتوس فيكتوري (Invictus Victory)", category: "men", price: 370, notes: "ليمون مثلج، لبان عماني، فانيليا مدخنة، عنبر", bestseller: true },
-  { id: 27, name: "اسد لطافة (Asad)", category: "men", price: 340, notes: "فلفل أسود، تبغ دافئ، قهوة داكنة، عنبر وخشب الأرز", bestseller: true },
-  { id: 28, name: "كيالي فانيليا (Kayali Vanilla 28)", category: "women", price: 390, notes: "فانيليا مدغشقر، سكر بني، أوركيد الفانيليا، مسك رقيق", bestseller: true },
-  { id: 29, name: "سيجار (Cigar Rémy Latour)", category: "men", price: 270, notes: "أوراق التبغ الكلاسيكية، برقوق، جوزة الطيب، صندل", bestseller: false },
-  { id: 30, name: "بينك شوجر (Pink Sugar)", category: "women", price: 290, notes: "حلوى غزل البنات، توت العليق، فراولة، فانيليا، كراميل", bestseller: true },
-  { id: 31, name: "عود ابيض (White Oud)", category: "unisex", price: 310, notes: "عود هادئ ومخملي، عنبر ناصع، مسك بودري", bestseller: false },
-  { id: 32, name: "بوس ذا سنت (Boss The Scent)", category: "men", price: 330, notes: "فاكهة المانينكا الأفريقية، زنجبيل، جلد فاخر", bestseller: false },
-  { id: 33, name: "اسكندل رجالي (Scandal Pour Homme)", category: "men", price: 380, notes: "كراميل مكرمل، ميرمية كلاري، حبوب التونكا، نجيل الهند", bestseller: true },
-  { id: 34, name: "اسكندل النسائي (Scandal Jean Paul)", category: "women", price: 390, notes: "عسل نقي مسكوب، غردينيا، برتقال دموي، باتشولي", bestseller: true },
-  { id: 35, name: "ميجا مار (Megamare Orto Parisi)", category: "unisex", price: 490, notes: "طحالب بحرية مظلمة، يود، ملوحة مياه المحيط العميقة", bestseller: true },
-  { id: 36, name: "مونت بلانك لجند مون بلو (Montblanc Legend)", category: "men", price: 320, notes: "خزامى، برغموت، لويزة، تفاح أحمر، خشب الصندل", bestseller: false },
-  { id: 37, name: "الوسام الرصاصي (Al Wisam Day)", category: "men", price: 330, notes: "لافندر، ليمون منعش، ورود، خشب الأرز، صندل هادئ", bestseller: false },
-  { id: 38, name: "كريد افنتوس (Creed Aventus)", category: "men", price: 460, notes: "أناناس مدخن، برغموت، بتولا، مسك رمادي، تفاح مقرمش", bestseller: true },
-  { id: 39, name: "الثائر (Al Thaer)", category: "men", price: 350, notes: "توابل شرقية حارة، جلد مدبوغ، عود كمبودي", bestseller: false },
-  { id: 40, name: "بيانكو لاتيه (Bianco Latte Giardini)", category: "women", price: 450, notes: "حليب الفانيليا، كراميل سائل، عسل أبيض، مسك رغوي", bestseller: true },
-  { id: 41, name: "عود بوكيه لانكوم (Oud Bouquet)", category: "unisex", price: 430, notes: "عود باريسي فاخر، برالين لوز، بتلات الورد، فانيليا", bestseller: false },
-  { id: 42, name: "ميد نايت (Midnight Rose)", category: "women", price: 340, notes: "ورد، توت العليق، كشمش أسود، فلفل وردي، أرز", bestseller: false },
-  { id: 43, name: "امير العرب (Ameer Al Arab)", category: "men", price: 320, notes: "هيل، حبوب الهيل، ريحان، شاي أخضر، صندل", bestseller: true },
-  { id: 44, name: "اميرة العرب (Ameerat Al Arab)", category: "women", price: 320, notes: "فراولة برية، ياسمين، مسك أبيض، زهور شرقية", bestseller: true },
-  { id: 45, name: "جاد أوف فاير (God of Fire)", category: "unisex", price: 490, notes: "مانجو استوائي طازج، زنجبيل أحمر، ليمون، خشب الصندل، عنبر", bestseller: true },
-  { id: 46, name: "بلو دي شانيل (Bleu De Chanel)", category: "men", price: 420, notes: "جريب فروت، بخور ناعم، خشب الأرز، زنجبيل، نعناع", bestseller: true },
-  { id: 47, name: "احساس (Ehsaas العربية)", category: "unisex", price: 350, notes: "ورد طائفي، عنبر معتق، صندل هندي، خشب الأرز", bestseller: false },
-  { id: 48, name: "بلاك ليكسز (Black XS)", category: "men", price: 310, notes: "حلوى البرالين، ليمون كالابريا، هيل أسود، خشب الورد", bestseller: false },
-  { id: 49, name: "باسفيك شيل (Pacific Chill LV)", category: "unisex", price: 490, notes: "كشمش أسود، كزبرة، برتقال، ريحان، نعناع، تمر هندي", bestseller: true },
-  { id: 50, name: "سلفر سنت (Silver Scent)", category: "men", price: 290, notes: "زهر الليمون، جوزة الطيب، حبوب التونكا، نجيل الهند", bestseller: false },
-  { id: 51, name: "برادا بارادوكس (Prada Paradoxe)", category: "women", price: 430, notes: "براعم زهر البرتقال، ليتشي، عنبر حيوي، مسك أبيض نقي", bestseller: true },
-  { id: 52, name: "لاكوست وايت (Lacoste White L.12.12)", category: "men", price: 310, notes: "جريب فروت منعش، هيل، مسك الروم، جلد سويدي", bestseller: false },
-  { id: 53, name: "لاكوست اسنشال (Lacoste Essential)", category: "men", price: 300, notes: "أوراق الطماطم، كاسيس، حمضيات خضراء، فلفل أسود", bestseller: false },
-  { id: 54, name: "شامبيون دافيدوف (Davidoff Champion)", category: "men", price: 290, notes: "برغموت، ليمون، ميرمية خضراء، طحلب السنديان", bestseller: false },
-  { id: 55, name: "تراب الدهب (Turab Al Dhahab)", category: "unisex", price: 330, notes: "جوز هند، فانيليا كريمية، أوركيد، لوتس، مسك دافئ", bestseller: false },
-  { id: 56, name: "شيروتي 1881 (Cerruti 1881)", category: "men", price: 280, notes: "خزامى كلاسيكي، سرو، قرنفل، خشب الصندل، عنبر", bestseller: false },
-  { id: 57, name: "عود شهرة (Shuhrah Pour Homme)", category: "men", price: 340, notes: "أوراق الطماطم، ورد، بخور دخاني، جلد فاخر، عود", bestseller: true },
-  { id: 58, name: "جود جيرل (Good Girl Carolina Herrera)", category: "women", price: 390, notes: "لوز محمص، قهوة نقية، مسك الروم، ياسمين سامباك، كاكاو", bestseller: true },
-  { id: 59, name: "كول وتر بلو (Cool Water Man)", category: "men", price: 280, notes: "مياه المحيط، نعناع بارد، إكليل الجبل، خشب الصندل", bestseller: false },
-  { id: 60, name: "لاف إذ هيفن (Love is Heavenly)", category: "women", price: 310, notes: "زنبق الماء، مسك أبيض، توت بري، فريزيا ناعمة", bestseller: false },
-  { id: 61, name: "كليكي فلور عود بخور", category: "unisex", price: 360, notes: "بخور مروكي، زهور دمشقية، دهن عود خالص", bestseller: false },
-  { id: 62, name: "يارا كاندي لطافة (Yara Candy)", category: "women", price: 360, notes: "حلوى الكاندي، فراولة مسكرة، فانيليا بودر، مسك لطيف", bestseller: true },
-  { id: 63, name: "روز فانيليا مانسيرا (Roses Vanille)", category: "women", price: 410, notes: "سكر ناصع، ورد تركي، فانيليا مركزة، مسك أبيض رقيق", bestseller: true },
-  { id: 64, name: "مون اسباركل اسكادا (Moon Sparkle)", category: "women", price: 320, notes: "فراولة حمراء، كشمش أسود، تفاح أحمر، بازلاء حلوة", bestseller: false },
-  { id: 65, name: "بربري هير (Burberry Her)", category: "women", price: 410, notes: "توت العليق، كرز حامض، ياسمين، فانيليا، كشمير", bestseller: true },
-  { id: 66, name: "كريزي لاف (Crazy Love)", category: "women", price: 290, notes: "كوكتيل فواكه حمراء، زهور بيضاء، فانيليا خفيفة", bestseller: false },
-  { id: 67, name: "فري سيكسي ناو (Very Sexy Now)", category: "women", price: 330, notes: "جوز هند استوائي، لوتس، جوز الشيا، مسك حسي", bestseller: false },
-  { id: 68, name: "إسكيب كالفن كلاين (Escape For Men)", category: "men", price: 290, notes: "شمام مائي، ميرمية، كافور، خشب الأرز، فيتيفر", bestseller: false },
-  { id: 69, name: "هرش لهب (Harsh Lahab)", category: "men", price: 340, notes: "توابل مشتعلة، فلفل حار، عود داكن، جلد", bestseller: false },
-  { id: 70, name: "ألف ليلة وليلة (Alf Leila)", category: "unisex", price: 370, notes: "عود مبخر، مسك غزال، زعفران ملكي، عنبر شرقي", bestseller: false },
-  { id: 71, name: "رومبا بالنسياجا (Rumba)", category: "women", price: 310, notes: "برقوق، عسل داكن، قرنفل، جلد، خشب الباتشولي", bestseller: false },
-  { id: 72, name: "بلو دانهيل (Dunhill Desire Blue)", category: "men", price: 300, notes: "ليتشي، يوسفي، نسيم البحر، خشب الورد البرازيلي", bestseller: false },
-  { id: 73, name: "كالفن كلاين ون (CK One)", category: "unisex", price: 290, notes: "ليمون، شاي أخضر، هيل، أناناس، زنبق الوادي، أرز", bestseller: false },
-  { id: 74, name: "باي جيفنشي (Pi Givenchy)", category: "men", price: 360, notes: "فانيليا كلاسيكية، لوز، حبوب التونكا، بنزوين مدخن", bestseller: false },
-  { id: 75, name: "امير العود (Ameer Al Oud)", category: "unisex", price: 330, notes: "عود بلسمي، سكر مكرمل، فانيليا، مسك داكن", bestseller: false },
-  { id: 76, name: "فانيليا باودر ماتيير (Vanilla Powder)", category: "unisex", price: 470, notes: "فانيليا مدغشقر، مسك أبيض قطني، أخشاب البالو سانتو", bestseller: true },
-  { id: 77, name: "مسك فراولة (Strawberry Musk)", category: "women", price: 240, notes: "مسك طهارة بارد، فراولة طبيعية نقية، فانيليا", bestseller: true },
-  { id: 78, name: "مسك بيلا (Bella Musk)", category: "women", price: 260, notes: "زهور ناعمة، لمسة فاكهية رقيقة، مسك أبيض بودري", bestseller: false },
-  { id: 79, name: "مسك مارشميلو (Marshmallow Musk)", category: "women", price: 270, notes: "مارشميلو سكري، سكر مطحون، مسك مخملي ناعم", bestseller: true },
-  { id: 80, name: "مسك توت احمر (Red Berry Musk)", category: "unisex", price: 260, notes: "توت أحمر مجمد، ليتشي، مسك منعش صيفي", bestseller: false },
-  { id: 81, name: "مسك رمان (Pomegranate Musk)", category: "unisex", price: 260, notes: "عصير الرمان المركز، لمسات زهرية، مسك بلوري", bestseller: true },
-  { id: 82, name: "مسك خوخ (Peach Musk)", category: "women", price: 250, notes: "خوخ سكري طازج، مسك حريري، قطرات الندى", bestseller: false },
-  { id: 83, name: "مسك فانيليا (Vanilla Musk)", category: "unisex", price: 260, notes: "فانيليا ناعمة كالحليب، مسك أبيض صافٍ", bestseller: true },
-  { id: 84, name: "مسك باودر (Powder Musk)", category: "unisex", price: 260, notes: "بودرة أطفال فاخرة، زنبق الوادي، مسك الطهارة النقي", bestseller: true },
-  { id: 85, name: "مسك اميرة العرب (Ameerat Musk)", category: "women", price: 270, notes: "مسك طائفي مع قطرات زهور بيضاء وفواكه سكرية", bestseller: false },
-  { id: 86, name: "مسك ابيض طهارة (Pure White Musk)", category: "unisex", price: 230, notes: "مسك الطهارة الأصلي الكثيف، نظافة وراحة تدوم", bestseller: true },
-  { id: 87, name: "مسك مانجا (Mango Musk)", category: "unisex", price: 260, notes: "مانجو ناضجة، نسيم استوائي، مسك خفيف منعش", bestseller: true },
-  { id: 88, name: "مسك احمر (Red Musk)", category: "unisex", price: 260, notes: "قرفة، توابل حارة، مسك شرقي معتق", bestseller: false },
-  { id: 89, name: "مارفيل مان (Marvel Man)", category: "men", price: 310, notes: "حمضيات منعشة، أخشاب طازجة، مسك رجالي جريء", bestseller: false },
-  { id: 90, name: "بلاتنيوم إيجويست (Egoiste Platinum)", category: "men", price: 380, notes: "إكليل الجبل، لافندر، جيرانيوم، نجيل الهند، أرز", bestseller: false },
-  { id: 91, name: "جيمي شو (Jimmy Choo Man)", category: "men", price: 320, notes: "شمام ناضج، فلفل وردي، أوراق الأناناس، باتشولي", bestseller: false },
-  { id: 92, name: "دراكر نوار (Drakkar Noir)", category: "men", price: 270, notes: "إكليل الجبل، نعناع، ريحان، خشب الأرز، جلود كلاسيكية", bestseller: false },
-  { id: 93, name: "استلر تاميذ (Stellar Times LV)", category: "unisex", price: 490, notes: "عنبر أبيض دافئ، زهر البرتقال، خلاصة الخشب البلسمي", bestseller: true },
-  { id: 94, name: "سوفاج ديور (Sauvage Dior)", category: "men", price: 390, notes: "برغموت كالابريا، فلفل سيتشوان، أمبروكسان، خشب الأرز", bestseller: true },
-  { id: 95, name: "إربا بورا (Erba Pura Xerjoff)", category: "unisex", price: 460, notes: "برتقال صقلي، ليمون، سلة فواكه البحر الأبيض، مسك أبيض، فانيليا", bestseller: true },
-  { id: 96, name: "جي 3 (G3 Fragrance)", category: "men", price: 310, notes: "توابل خشبية، ليمون مالح، أخشاب الغابات", bestseller: false },
-  { id: 97, name: "وان مان شو (One Man Show)", category: "men", price: 260, notes: "صنوبر، خشب الورد، طحالب السنديان، جلود داكنة", bestseller: false },
-  { id: 98, name: "تيد لابيدوس (Ted Lapidus)", category: "men", price: 270, notes: "أناناس، عسل، تبغ، خشب الصندل، بخور", bestseller: false },
-  { id: 99, name: "كنزو بور هوم (Kenzo Pour Homme)", category: "men", price: 320, notes: "أمواج البحر المندفعة، صنوبر، جوزة الطيب، خشب الصندل", bestseller: false }
-];
-
-/* =========================================================
-   3. حالة التطبيق والمخازن المحلية (State Management)
-   ========================================================= */
-let products = [...initialCatalog];
+let products = []; // تم إزالة العطور الثابتة؛ تُجلب تلقائياً من الفايربيز
 let cart = loadLocal("seif_cart", []);
 let wishlist = loadLocal("seif_wishlist", []);
 let currentCategory = "all";
@@ -146,9 +40,8 @@ let currentPfpSize = 50;
 let currentPfpQty = 1;
 
 let activeCoupon = null;
-let adminWhatsappNumber = "201016118242";
+let adminWhatsappNumber = "201101579399";
 
-// نسب تسعير الأحجام (إذا لم يُحدد سعر خاص في لوحة التحكم)
 const SIZE_MULTIPLIERS = {
   30: 0.65,
   50: 1.00,
@@ -156,7 +49,7 @@ const SIZE_MULTIPLIERS = {
 };
 
 /* =========================================================
-   4. دوال المساعدة والتسعير الدقيق
+   3. دوال المساعدة والحفظ المحلي
    ========================================================= */
 function saveLocal(key, val) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
@@ -182,7 +75,6 @@ function formatPrice(num) {
   return `${Number(num || 0).toLocaleString("ar-EG")} ج`;
 }
 
-// السعر الدقيق للحجم من الفايربيز أو النسبة
 function getProductExactPrice(prod, size = 50) {
   if (!prod) return 0;
   const sz = Number(size);
@@ -193,7 +85,6 @@ function getProductExactPrice(prod, size = 50) {
   return Math.round((base * (SIZE_MULTIPLIERS[sz] || 1)) / 10) * 10;
 }
 
-// المخزون الفعلي للحجم المختار
 function getProductExactStock(prod, size = 50) {
   if (!prod) return 0;
   const sz = Number(size);
@@ -204,22 +95,17 @@ function getProductExactStock(prod, size = 50) {
 }
 
 /* =========================================================
-   5. توليد كروت العطور الملمومة (Compact Grid Cards)
+   4. توليد كروت العطور داخل المتجر
    ========================================================= */
 function generateProductCardHtml(p) {
   const isFav = wishlist.some(id => String(id) === String(p.id));
   const price30 = getProductExactPrice(p, 30);
-  const price50 = getProductExactPrice(p, 50);
-
-  // الفئة المكتوبة
   const catLabel = p.category === "men" ? "رجالي" : p.category === "women" ? "نسائي" : "للجنسين";
   const catBadgeClass = p.category === "women" ? "badge-pink" : p.category === "men" ? "badge-blue" : "badge-gold";
 
   return `
     <article class="compact-perfume-card" data-id="${p.id}">
-      
-      <!-- الصورة وأزرار التفاعل السريعة -->
-      <div class="card-visual-wrap" onclick="openProductFullPage('${p.id}')">
+      <div class="card-visual-wrap" onclick="openProductPage('${p.id}')">
         ${p.bestseller ? '<span class="card-star-badge">الأكثر مبيعاً 🔥</span>' : ''}
         
         <button type="button" 
@@ -231,22 +117,18 @@ function generateProductCardHtml(p) {
         </button>
 
         <img src="${p.image || 'image/S1.png'}" alt="${escapeHtml(p.name)}" class="card-perfume-img" loading="lazy">
-        
         <span class="card-view-pill">معاينة وتفاصيل 👁️</span>
       </div>
 
-      <!-- معلومات العطر المدمجة -->
       <div class="card-data-wrap">
         <div class="card-category-row">
           <span class="compact-cat-badge ${catBadgeClass}">${catLabel}</span>
           <span class="card-sim-tag">محاكاة الأصلية ✦</span>
         </div>
 
-        <h3 class="card-perfume-name" onclick="openProductFullPage('${p.id}')">${escapeHtml(p.name)}</h3>
-        
+        <h3 class="card-perfume-name" onclick="openProductPage('${p.id}')">${escapeHtml(p.name)}</h3>
         <p class="card-notes-brief">${escapeHtml(p.notes || "توليفة عطرية مركزة وثابتة تدوم طويلاً")}</p>
 
-        <!-- سطر السعر والطلب السريع الملموم -->
         <div class="card-action-footer">
           <div class="card-price-stack">
             <span class="price-from-txt">يبدأ من (30مل):</span>
@@ -256,52 +138,43 @@ function generateProductCardHtml(p) {
           <button type="button" 
                   class="card-quick-buy-btn" 
                   data-action="quick-buy" 
-                  data-id="${p.id}" 
-                  title="شراء العبوة الأساسية (50 مل) فوراً">
+                  data-id="${p.id}">
             <span>شراء ⚡</span>
           </button>
         </div>
-
       </div>
-
     </article>
   `;
 }
 
 /* =========================================================
-   6. الفلترة المتقدمة (تشمل إظهار للجنسين في الاثنين)
+   5. الفلترة، العرض، والصفحات
    ========================================================= */
 function getFilteredCatalog() {
   let list = [...products];
 
-  // 1. الفئة
   if (currentCategory !== "all") {
     if (currentCategory === "bestseller") {
       list = list.filter(p => p.bestseller === true);
     } else if (currentCategory === "wishlist") {
       list = list.filter(p => wishlist.map(String).includes(String(p.id)));
     } else if (currentCategory === "men") {
-      // يظهر عطور الرجال + أي عطر صُنف للجنسين تلقائياً
       list = list.filter(p => p.category === "men" || p.category === "unisex");
     } else if (currentCategory === "women") {
-      // يظهر عطور النساء + أي عطر صُنف للجنسين تلقائياً
       list = list.filter(p => p.category === "women" || p.category === "unisex");
     } else if (currentCategory === "unisex") {
       list = list.filter(p => p.category === "unisex");
     }
   }
 
-  // 2. البحث الحي
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase().trim();
     list = list.filter(p => 
       (p.name && p.name.toLowerCase().includes(q)) ||
-      (p.notes && p.notes.toLowerCase().includes(q)) ||
-      (p.desc && p.desc.toLowerCase().includes(q))
+      (p.notes && p.notes.toLowerCase().includes(q))
     );
   }
 
-  // 3. الترتيب
   switch (currentSort) {
     case "price-low":
       list.sort((a, b) => getProductExactPrice(a, 50) - getProductExactPrice(b, 50));
@@ -392,43 +265,35 @@ window.resetFilters = function() {
 };
 
 /* =========================================================
-   7. صفحة تفاصيل العطر المستقلة الكاملة (Product Full Page)
+   6. صفحة تفاصيل العطر (Product Page Overlay)
    ========================================================= */
-const productFullPage = document.getElementById("productFullPage");
-const pfpImage = document.getElementById("pfpImage");
-const pfpCategory = document.getElementById("pfpCategory");
-const pfpName = document.getElementById("pfpName");
-const pfpNotesSummary = document.getElementById("pfpNotesSummary");
-const pfpDesc = document.getElementById("pfpDesc");
-const pfpFinalPrice = document.getElementById("pfpFinalPrice");
-const pfpQtyVal = document.getElementById("pfpQtyVal");
-const pfpStockPill = document.getElementById("pfpStockPill");
-const pfpAddBtn = document.getElementById("pfpAddBtn");
-const pfpBuyNowBtn = document.getElementById("pfpBuyNowBtn");
-const pfpWomenNotice = document.getElementById("pfpWomenNotice");
+const productPage = document.getElementById("productPage");
 
-window.openProductFullPage = function(id) {
+window.openProductPage = function(id) {
   const prod = products.find(p => String(p.id) === String(id));
-  if (!prod || !productFullPage) return;
+  if (!prod || !productPage) return;
 
   currentPfpProduct = prod;
-  currentPfpSize = 50; // الحجم الأساسي
+  currentPfpSize = 50;
   currentPfpQty = 1;
+
+  const pfpImage = document.getElementById("pfpImage");
+  const pfpName = document.getElementById("pfpName");
+  const pfpNotesSummary = document.getElementById("pfpNotesSummary");
+  const pfpDesc = document.getElementById("pfpDesc");
+  const pfpCategory = document.getElementById("pfpCategory");
+  const pfpWomenNotice = document.getElementById("pfpWomenNotice");
 
   if (pfpImage) pfpImage.src = prod.image || "image/S1.png";
   if (pfpName) pfpName.textContent = prod.name;
   if (pfpNotesSummary) pfpNotesSummary.textContent = prod.notes || "عطر فاخر يحاكي الأصلي بدقة وثبات";
-  if (pfpDesc) pfpDesc.textContent = prod.desc || "تم تصنيع وتركيب هذا العطر باستخدام أنقى الزيوت العطرية الفرنسية لضمان تطابق تام مع الماركة الأصلية، وثبات يتخطى الـ 48 ساعة.";
-
-  if (pfpCategory) {
-    pfpCategory.textContent = prod.category === "men" ? "رجالي" : prod.category === "women" ? "نسائي" : "للجنسين";
-  }
+  if (pfpDesc) pfpDesc.textContent = prod.desc || "تم تصنيع وتركيب هذا العطر باستخدام أنقى الزيوت العطرية لضمان ثبات يتخطى 48 ساعة.";
+  if (pfpCategory) pfpCategory.textContent = prod.category === "men" ? "رجالي" : prod.category === "women" ? "نسائي" : "للجنسين";
 
   if (pfpWomenNotice) {
     pfpWomenNotice.style.display = (prod.category === "women") ? "block" : "none";
   }
 
-  // تنشيط زر الحجم 50 مل
   document.querySelectorAll("#pfpSizesGroup .size-choice-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.size === "50");
   });
@@ -436,22 +301,21 @@ window.openProductFullPage = function(id) {
   updatePfpInterface();
   renderRelatedPerfumes(prod);
 
-  productFullPage.style.setProperty("display", "block", "important");
+  productPage.style.display = "block";
   document.body.classList.add("no-scroll");
-  productFullPage.scrollTop = 0;
+  productPage.scrollTop = 0;
 };
 
-window.closeProductFullPage = function() {
-  if (productFullPage) {
-    productFullPage.style.display = "none";
+window.closeProductPage = function() {
+  if (productPage) {
+    productPage.style.display = "none";
     document.body.classList.remove("no-scroll");
     currentPfpProduct = null;
   }
 };
 
-document.getElementById("closeProductPageBtn")?.addEventListener("click", closeProductFullPage);
+document.getElementById("closeProductPageBtn")?.addEventListener("click", closeProductPage);
 
-// اختيار الحجم
 document.getElementById("pfpSizesGroup")?.addEventListener("click", (e) => {
   const btn = e.target.closest(".size-choice-btn");
   if (!btn || !currentPfpProduct) return;
@@ -466,7 +330,6 @@ document.getElementById("pfpSizesGroup")?.addEventListener("click", (e) => {
   updatePfpInterface();
 });
 
-// أزرار الكمية
 document.getElementById("pfpQtyMinus")?.addEventListener("click", () => {
   if (currentPfpQty > 1) {
     currentPfpQty--;
@@ -479,7 +342,7 @@ document.getElementById("pfpQtyPlus")?.addEventListener("click", () => {
   const maxAvail = getProductExactStock(currentPfpProduct, currentPfpSize);
 
   if (currentPfpQty >= maxAvail) {
-    showToast("أقصى كمية متاحة", `المتوفر بالمخزون من حجم (${currentPfpSize} مل) هو ${maxAvail} زجاجات فقط ⚠️`);
+    showToast("المخزون المتاح", `المتوفر من هذا الحجم هو ${maxAvail} زجاجات فقط ⚠️`);
     return;
   }
 
@@ -494,48 +357,43 @@ function updatePfpInterface() {
   const totalPrice = unitPrice * Math.max(1, currentPfpQty);
   const availableStock = getProductExactStock(currentPfpProduct, currentPfpSize);
 
+  const pfpFinalPrice = document.getElementById("pfpFinalPrice");
+  const pfpQtyVal = document.getElementById("pfpQtyVal");
+  const pfpStockPill = document.getElementById("pfpStockPill");
+  const pfpAddBtn = document.getElementById("pfpAddBtn");
+  const pfpBuyNowBtn = document.getElementById("pfpBuyNowBtn");
+
   if (pfpFinalPrice) pfpFinalPrice.textContent = formatPrice(totalPrice);
   if (pfpQtyVal) pfpQtyVal.textContent = currentPfpQty;
 
   if (pfpStockPill) {
     if (availableStock <= 0) {
-      pfpStockPill.textContent = "نفدت الكمية من هذا الحجم ❌";
+      pfpStockPill.textContent = "نفدت الكمية ❌";
       pfpStockPill.style.color = "#e74c3c";
     } else {
-      pfpStockPill.textContent = `المتوفر من حجم (${currentPfpSize} مل): ${availableStock} زجاجات فقط`;
+      pfpStockPill.textContent = `المتوفر: ${availableStock} زجاجة`;
       pfpStockPill.style.color = "var(--accent-gold)";
     }
   }
 
-  // قفل الأزرار عند نفاد المخزون
   const isOutOfStock = availableStock <= 0;
-  if (pfpAddBtn) {
-    pfpAddBtn.disabled = isOutOfStock;
-    pfpAddBtn.style.opacity = isOutOfStock ? "0.45" : "1";
-    pfpAddBtn.innerHTML = isOutOfStock ? '<span>❌</span><span>نفدت الكمية</span>' : '<span>🛒</span><span>أضف إلى السلة</span>';
-  }
-  if (pfpBuyNowBtn) {
-    pfpBuyNowBtn.disabled = isOutOfStock;
-    pfpBuyNowBtn.style.opacity = isOutOfStock ? "0.45" : "1";
-  }
+  if (pfpAddBtn) pfpAddBtn.disabled = isOutOfStock;
+  if (pfpBuyNowBtn) pfpBuyNowBtn.disabled = isOutOfStock;
 }
 
-// زر الإضافة للسلة
-pfpAddBtn?.addEventListener("click", () => {
+document.getElementById("pfpAddBtn")?.addEventListener("click", () => {
   if (!currentPfpProduct) return;
   addToCart(currentPfpProduct.id, currentPfpQty, currentPfpSize);
-  showToast("تمت الإضافة بنجاح 🛍️", `${currentPfpProduct.name} (${currentPfpSize} مل)`);
+  showToast("تمت الإضافة للسلة 🛍️", `${currentPfpProduct.name} (${currentPfpSize} مل)`);
 });
 
-// زر الشراء الفوري (ينقل المشتري مباشرة لإتمام الطلب بنفس الحجم والكمية)
-pfpBuyNowBtn?.addEventListener("click", () => {
+document.getElementById("pfpBuyNowBtn")?.addEventListener("click", () => {
   if (!currentPfpProduct) return;
   addToCart(currentPfpProduct.id, currentPfpQty, currentPfpSize);
-  closeProductFullPage();
+  closeProductPage();
   openCheckout();
 });
 
-// عطور مماثلة متطابقة تماماً مع كروت المتجر
 function renderRelatedPerfumes(mainProduct) {
   const grid = document.getElementById("pfpRelatedGrid");
   if (!grid) return;
@@ -545,29 +403,28 @@ function renderRelatedPerfumes(mainProduct) {
     related = products.filter(p => String(p.id) !== String(mainProduct.id));
   }
 
-  const selected = related.slice(0, 4);
-  grid.innerHTML = selected.map(generateProductCardHtml).join("");
+  grid.innerHTML = related.slice(0, 4).map(generateProductCardHtml).join("");
 }
 
 /* =========================================================
-   8. صفحة السلة المستقلة الكاملة (Full Cart Page)
+   7. صفحة السلة (Cart Page Overlay)
    ========================================================= */
-const cartFullPage = document.getElementById("cartFullPage");
+const cartPage = document.getElementById("cartPage");
 
 window.openCart = function() {
-  closeProductFullPage();
+  closeProductPage();
   closeCheckout();
   updateCartInterface();
-  if (cartFullPage) {
-    cartFullPage.style.setProperty("display", "block", "important");
+  if (cartPage) {
+    cartPage.style.display = "block";
     document.body.classList.add("no-scroll");
-    cartFullPage.scrollTop = 0;
+    cartPage.scrollTop = 0;
   }
 };
 
 window.closeCart = function() {
-  if (cartFullPage) {
-    cartFullPage.style.display = "none";
+  if (cartPage) {
+    cartPage.style.display = "none";
     document.body.classList.remove("no-scroll");
   }
 };
@@ -591,7 +448,7 @@ function addToCart(id, qty = 1, size = 50) {
   if (existing) {
     if (existing.quantity + qty > maxStock) {
       existing.quantity = maxStock;
-      showToast("المخزون المتاح", `الكمية المتاحة هي ${maxStock} فقط وتم ضبطها في سلتك ⚠️`);
+      showToast("المخزون المتاح", `الكمية المتاحة هي ${maxStock} وتم ضبطها بسلتك ⚠️`);
     } else {
       existing.quantity += qty;
     }
@@ -622,7 +479,7 @@ function updateCartInterface() {
       <div class="cart-empty-panel">
         <div class="empty-icon">🛒</div>
         <h3>سلة مشترياتك فارغة حالياً</h3>
-        <p>استكشف كتالوج سيف واختر عطرك المفضل لتحصل على تستر 5 مل هدية مجانية مع كل زجاجة.</p>
+        <p>اختر عطرك المفضل لتحصل على تستر 5 مل هدية مجانية مع كل زجاجة.</p>
         <button type="button" class="btn-primary-glow" onclick="closeCart(); document.getElementById('catalog').scrollIntoView({behavior:'smooth'});">تصفح العطور الآن</button>
       </div>
     `;
@@ -642,7 +499,6 @@ function updateCartInterface() {
     const sz = Number(item.size || 50);
     const unitPrice = getProductExactPrice(prod, sz);
     const itemTotal = unitPrice * item.quantity;
-    const maxStock = getProductExactStock(prod, sz);
 
     subtotal += itemTotal;
     totalBottles += Number(item.quantity || 1);
@@ -658,7 +514,7 @@ function updateCartInterface() {
           </div>
 
           <span class="cart-item-size-badge">حجم العبوة: <strong>${sz} مل</strong></span>
-          <span class="cart-item-gift-tag">🎁 يشمل تستر 5 مل مجاناً مع هذه الزجاجة</span>
+          <span class="cart-item-gift-tag">🎁 يشمل تستر 5 مل مجاناً</span>
 
           <div class="cart-item-bottom-row">
             <div class="cart-qty-picker">
@@ -668,7 +524,7 @@ function updateCartInterface() {
             </div>
             
             <div class="cart-price-sum">
-              <span class="unit-p">سعر القطعة: ${formatPrice(unitPrice)}</span>
+              <span class="unit-p">السعر: ${formatPrice(unitPrice)}</span>
               <strong class="total-p">${formatPrice(itemTotal)}</strong>
             </div>
           </div>
@@ -677,19 +533,16 @@ function updateCartInterface() {
     `;
   }).join("");
 
-  // حساب الخصم
   let discount = 0;
-  if (activeCoupon) {
-    if (activeCoupon.type === "percent") {
-      discount = Math.round(subtotal * (activeCoupon.value / 100));
-    }
+  if (activeCoupon && activeCoupon.type === "percent") {
+    discount = Math.round(subtotal * (activeCoupon.value / 100));
   }
 
   const finalTotal = Math.max(0, subtotal - discount);
 
   if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
   if (finalEl) finalEl.textContent = formatPrice(finalTotal);
-  if (giftsEl) giftsEl.textContent = `${totalBottles} تسترات (5 مل مجاناً) 🎁`;
+  if (giftsEl) giftsEl.textContent = `${totalBottles} تسترات هدية 🎁`;
 
   if (discountRow && discountVal) {
     if (discount > 0) {
@@ -742,10 +595,9 @@ document.getElementById("proceedCheckoutBtn")?.addEventListener("click", () => {
 });
 
 /* =========================================================
-   9. صفحة إتمام الطلب والدفع المستقلة (Checkout Full Page)
-      مع الحفظ التلقائي للبيانات وحساب التسترات في الفاتورة
+   8. صفحة إتمام الشراء والتوصيل (Checkout Page Overlay)
    ========================================================= */
-const checkoutFullPage = document.getElementById("checkoutFullPage");
+const checkoutPage = document.getElementById("checkoutPage");
 const custGovSelect = document.getElementById("custGov");
 const checkoutOrderForm = document.getElementById("checkoutOrderForm");
 
@@ -780,22 +632,22 @@ window.openCheckout = function() {
     showToast("السلة فارغة", "أضف عطوراً أولاً لإتمام الشراء.");
     return;
   }
-  closeProductFullPage();
+  closeProductPage();
   closeCart();
   populateGovs();
   autoFillCustomerData();
   updateCheckoutReview();
 
-  if (checkoutFullPage) {
-    checkoutFullPage.style.setProperty("display", "block", "important");
+  if (checkoutPage) {
+    checkoutPage.style.display = "block";
     document.body.classList.add("no-scroll");
-    checkoutFullPage.scrollTop = 0;
+    checkoutPage.scrollTop = 0;
   }
 };
 
 window.closeCheckout = function() {
-  if (checkoutFullPage) {
-    checkoutFullPage.style.display = "none";
+  if (checkoutPage) {
+    checkoutPage.style.display = "none";
     document.body.classList.remove("no-scroll");
   }
 };
@@ -805,16 +657,13 @@ document.getElementById("closeCheckoutPageBtn")?.addEventListener("click", () =>
   openCart();
 });
 
-// الحفظ التلقائي للبيانات في المتصفح (Auto-Save & Auto-Fill)
 function autoFillCustomerData() {
   const saved = loadLocal("seif_customer_data", null);
   if (!saved) return;
   if (saved.name) document.getElementById("custName").value = saved.name;
   if (saved.phone) document.getElementById("custPhone").value = saved.phone;
   if (saved.phone2) document.getElementById("custPhone2").value = saved.phone2;
-  if (saved.gov && custGovSelect) {
-    custGovSelect.value = saved.gov;
-  }
+  if (saved.gov && custGovSelect) custGovSelect.value = saved.gov;
   if (saved.address) document.getElementById("custAddress").value = saved.address;
 }
 
@@ -834,7 +683,7 @@ function autoFillCustomerData() {
 custGovSelect?.addEventListener("change", updateCheckoutReview);
 
 function getShippingCost(subtotal) {
-  if (subtotal >= 1500) return 0; // شحن مجاني
+  if (subtotal >= 1500) return 0;
   const selGov = GOVERNORATES.find(g => g.name === custGovSelect?.value);
   return selGov ? selGov.fee : 0;
 }
@@ -882,18 +731,16 @@ function updateCheckoutReview() {
   const grandTotal = Math.max(0, subtotal - discount) + shipping;
 
   if (subtotalEl) subtotalEl.textContent = formatPrice(subtotal);
-  if (giftsEl) giftsEl.textContent = `${totalBottles} عينات تستر (5 مل مجاناً) 🎁`;
+  if (giftsEl) giftsEl.textContent = `${totalBottles} عينات تستر مجانية 🎁`;
 
   if (shippingEl) {
     if (!custGovSelect?.value) {
       shippingEl.textContent = "حدد المحافظة";
-      shippingEl.style.color = "var(--text-muted)";
     } else if (subtotal >= 1500) {
-      shippingEl.textContent = "مجاني (طلب أكثر من 1500 ج) 🔥";
+      shippingEl.textContent = "مجاني 🔥";
       shippingEl.style.color = "#2ecc71";
     } else {
       shippingEl.textContent = `${shipping} ج`;
-      shippingEl.style.color = "var(--text-light)";
     }
   }
 
@@ -909,7 +756,6 @@ function updateCheckoutReview() {
   if (grandEl) grandEl.textContent = formatPrice(grandTotal);
 }
 
-// تبديل خيارات الدفع
 document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
   radio.addEventListener("change", (e) => {
     const box = document.getElementById("walletTransferBox");
@@ -920,13 +766,12 @@ document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
 });
 
 document.getElementById("copyWalletBtn")?.addEventListener("click", () => {
-  const num = document.getElementById("seifWalletNumber")?.textContent || "01016118242";
+  const num = document.getElementById("seifWalletNumber")?.textContent || "01101579399";
   navigator.clipboard.writeText(num).then(() => {
     showToast("تم النسخ بنجاح 📋", `تم نسخ رقم التحويل: ${num}`);
   });
 });
 
-// تحديد الموقع التلقائي (GPS)
 document.getElementById("btnLocationGps")?.addEventListener("click", () => {
   const status = document.getElementById("locationGpsStatus");
   const hiddenLink = document.getElementById("custLocationMapLink");
@@ -936,23 +781,20 @@ document.getElementById("btnLocationGps")?.addEventListener("click", () => {
     return;
   }
 
-  if (status) {
-    status.textContent = "جاري التقاط إحداثيات موقعك عبر الأقمار الصناعية... ⏳";
-    status.style.color = "var(--accent-gold)";
-  }
+  if (status) status.textContent = "جاري التقاط إحداثيات موقعك... ⏳";
 
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
       if (hiddenLink) hiddenLink.value = link;
       if (status) {
-        status.textContent = "✓ تم التقاط موقعك الجغرافي بنجاح وسيرفق مع البوليصة.";
+        status.textContent = "✓ تم التقاط موقعك الجغرافي بنجاح.";
         status.style.color = "#2ecc71";
       }
     },
     () => {
       if (status) {
-        status.textContent = "تعذر تحديد الموقع، يرجى كتابة تفاصيل العنوان يدوياً.";
+        status.textContent = "تعذر تحديد الموقع، اكتب العنوان يدوياً.";
         status.style.color = "#e74c3c";
       }
     },
@@ -960,7 +802,6 @@ document.getElementById("btnLocationGps")?.addEventListener("click", () => {
   );
 });
 
-// إرسال وتأكيد الطلب النهائي
 checkoutOrderForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -973,25 +814,12 @@ checkoutOrderForm?.addEventListener("submit", async (e) => {
   const payMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "cod";
 
   if (!/^01[0125][0-9]{8}$/.test(phone)) {
-    alert("رقم الهاتف الأساسي غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ (010 أو 011 أو 012 أو 015).");
-    return;
-  }
-
-  if (phone2 && !/^01[0125][0-9]{8}$/.test(phone2)) {
-    alert("رقم الهاتف البديل غير صحيح! يجب أن يتكون من 11 رقماً.");
-    return;
-  }
-
-  if (!gov) {
-    alert("يرجى اختيار المحافظة لحساب قيمة الشحن والتوصيل.");
+    alert("رقم الهاتف غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 010 أو 011 أو 012 أو 015.");
     return;
   }
 
   const submitBtn = document.getElementById("confirmOrderBtn");
-  if (submitBtn) {
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = "<span>جاري تأكيد الطلب وحجز الشحنة... ⏳</span>";
-  }
+  if (submitBtn) submitBtn.disabled = true;
 
   let subtotal = 0;
   let totalBottles = 0;
@@ -1020,58 +848,31 @@ checkoutOrderForm?.addEventListener("submit", async (e) => {
   }
   const grandTotal = Math.max(0, subtotal - discount) + shipping;
 
-  const payNames = {
-    cod: "الدفع عند الاستلام كاش (COD) 💵",
-    vodafone_cash: "فودافون كاش (Vodafone Cash) 📱",
-    instapay: "انستا باي (InstaPay) ⚡"
-  };
+  const itemsListText = orderItemsData.map(i => `• ${i.name} (${i.size}) × ${i.quantity} — ${i.total} ج`).join("\n");
 
-  const itemsListText = orderItemsData.map(i => `• ${i.name} (${i.size}) × ${i.quantity} — بسعر ${i.total} ج`).join("\n");
-  const freeTesterGiftsText = `🎁 *الهدايا المرفقة المجانية:* عدد (${totalBottles}) تستر 5 مل هدية مجاناً مع كل زجاجة من اختيارك.`;
-
-  const waInvoiceMessage = `*طلب شراء جديد — سيف للعطور (SEIF PERFUMES)* 💎
+  const waInvoiceMessage = `*طلب جديد — سيف للعطور* 💎
 ━━━━━━━━━━━━━━━━━━
-👤 *بيانات المستلم:*
-• الاسم: ${name}
-• الهاتف الأساسي: ${phone}
-• الهاتف البديل: ${phone2 || "لا يوجد"}
-• المحافظة: ${gov}
-• العنوان بالتفصيل: ${address}
-• موقع الخريطة: ${mapLink || "لم يُحدد"}
-
-📦 *المنتجات المطلوبة:*
+👤 *المستلم:* ${name}
+📱 *الهاتف:* ${phone} ${phone2 ? `| ${phone2}` : ''}
+📍 *العنوان:* ${gov} - ${address}
+${mapLink ? `🗺️ *الخريطة:* ${mapLink}\n` : ''}
+📦 *الطلبات:*
 ${itemsListText}
+🎁 *الهدايا:* (${totalBottles}) تسترات 5 مل مجاناً
 
-${freeTesterGiftsText}
-━━━━━━━━━━━━━━━━━━
-💰 *الحساب والتكاليف:*
-• المجموع الفرعي: ${subtotal} جنيه
-${discount > 0 ? `• قيمة الخصم: -${discount} جنيه\n` : ''}• مصاريف التوصيل: ${shipping === 0 ? 'مجاني 🔥' : `${shipping} جنيه`}
-• *المبلغ الإجمالي المطلوب تحصيله:* *${grandTotal} جنيه*
-• طريقة الدفع: ${payNames[payMethod]}
-━━━━━━━━━━━━━━━━━━
-✨ تم تأكيد وتسجيل الطلب عبر متجر سيف للعطور`;
+💰 *الإجمالي المطلوب:* *${grandTotal} جنيه*
+💳 *طريقة الدفع:* ${payMethod === 'cod' ? 'عند الاستلام' : payMethod}
+━━━━━━━━━━━━━━━━━━`;
 
   try {
-    // 1. تسجيل الطلب في فايرستور
-    const orderDoc = await addDoc(ordersCol, {
-      customer: {
-        name,
-        phone,
-        secondaryPhone: phone2 || "غير محدد",
-        governorate: gov,
-        address,
-        googleMapsUrl: mapLink || "لم يحدد موقع GPS"
-      },
+    await addDoc(ordersCol, {
+      customer: { name, phone, phone2: phone2 || "", governorate: gov, address, mapLink },
       items: orderItemsData,
       pricing: { subtotal, discount, shippingFee: shipping, total: grandTotal },
       paymentMethod: payMethod,
-      whatsappMessage: waInvoiceMessage,
-      status: "new",
       createdAt: new Date()
     });
 
-    // 2. تحديث مخزون الأحجام تلقائياً
     for (const item of cart) {
       try {
         const prodRef = doc(db, "perfumes", String(item.id));
@@ -1080,12 +881,9 @@ ${discount > 0 ? `• قيمة الخصم: -${discount} جنيه\n` : ''}• م�
           [`stocks.${sz}`]: increment(-Number(item.quantity || 1)),
           stock: increment(-Number(item.quantity || 1))
         });
-      } catch (stkErr) {
-        console.warn("Stock update skipped for:", item.id);
-      }
+      } catch (err) {}
     }
 
-    // 3. مسح السلة وإغلاق الشاشة
     cart = [];
     saveLocal("seif_cart", cart);
     updateBadges();
@@ -1097,21 +895,17 @@ ${discount > 0 ? `• قيمة الخصم: -${discount} جنيه\n` : ''}• م�
     const waUrl = `https://wa.me/${adminWhatsappNumber}?text=${encodeURIComponent(waInvoiceMessage)}`;
     setTimeout(() => {
       window.open(waUrl, "_blank");
-    }, 1200);
+    }, 1000);
 
   } catch (err) {
-    console.error("Order submit error:", err);
-    alert("حدث خطأ أثناء إرسال الطلب، تأكد من اتصال الإنترنت وحاول مجدداً.");
+    alert("حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.");
   } finally {
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = "<span>تأكيد الطلب الآن ➔</span>";
-    }
+    if (submitBtn) submitBtn.disabled = false;
   }
 });
 
 /* =========================================================
-   10. المفضلة والبحث والإشعارات والشريط
+   9. المفضلة، البحث والتوست
    ========================================================= */
 function updateBadges() {
   const cartBadge = document.getElementById("cartCountBadge");
@@ -1131,7 +925,7 @@ function toggleWishlist(id) {
     showToast("المفضلة", "تمت إزالة العطر من المفضلة.");
   } else {
     wishlist.push(id);
-    showToast("المفضلة ♥", "تمت إضافة العطر إلى قائمة أمنياتك.");
+    showToast("المفضلة ♥", "تمت إضافة العطر إلى أمنياتك.");
   }
 
   saveLocal("seif_wishlist", wishlist);
@@ -1143,7 +937,6 @@ document.getElementById("wishlistHeaderBtn")?.addEventListener("click", () => {
   filterByQuick("wishlist");
 });
 
-// تتبع النقرات العامة في الصفحة
 document.addEventListener("click", (e) => {
   const favBtn = e.target.closest('[data-action="wishlist"]');
   if (favBtn) {
@@ -1155,8 +948,7 @@ document.addEventListener("click", (e) => {
   const quickBuyBtn = e.target.closest('[data-action="quick-buy"]');
   if (quickBuyBtn) {
     e.stopPropagation();
-    const id = quickBuyBtn.dataset.id;
-    addToCart(id, 1, 50); // الحجم القياسي 50 مل
+    addToCart(quickBuyBtn.dataset.id, 1, 50);
     openCheckout();
     return;
   }
@@ -1185,7 +977,7 @@ searchInput?.addEventListener("input", (e) => {
   renderCatalog();
 });
 
-// كبسولات الفئات والترتيب
+// التجميع للفئات والترتيب
 document.getElementById("categoryTabs")?.addEventListener("click", (e) => {
   const btn = e.target.closest(".capsule-btn");
   if (!btn) return;
@@ -1202,7 +994,6 @@ document.getElementById("sortSelect")?.addEventListener("change", (e) => {
   renderCatalog();
 });
 
-// شريط الإشعارات المؤقت (Toast)
 let toastTimer = null;
 function showToast(title, msg) {
   const toast = document.getElementById("toast");
@@ -1220,7 +1011,6 @@ function showToast(title, msg) {
   }, 3500);
 }
 
-// كوبون الخصم في السلة
 document.getElementById("applyCouponBtn")?.addEventListener("click", async () => {
   const inp = document.getElementById("couponCodeInput");
   const msg = document.getElementById("couponStatusMsg");
@@ -1230,65 +1020,58 @@ document.getElementById("applyCouponBtn")?.addEventListener("click", async () =>
   if (!code) {
     msg.style.display = "block";
     msg.style.color = "#e74c3c";
-    msg.textContent = "يرجى إدخال كود الكوبون أولاً!";
+    msg.textContent = "يرجى إدخال كود الخصم أولاً!";
     return;
   }
 
   try {
     const snap = await getDoc(doc(db, "coupons", code));
     if (snap.exists() && snap.data().active) {
-      const data = snap.data();
-      activeCoupon = data;
+      activeCoupon = snap.data();
       msg.style.display = "block";
       msg.style.color = "#2ecc71";
-      msg.textContent = `✓ تم تطبيق خصم (${data.value}%) بنجاح!`;
+      msg.textContent = `✓ تم تطبيق خصم (${activeCoupon.value}%) بنجاح!`;
       updateCartInterface();
     } else {
       activeCoupon = null;
       msg.style.display = "block";
       msg.style.color = "#e74c3c";
-      msg.textContent = "عذراً، هذا الكود غير صالح أو منتهي!";
+      msg.textContent = "عذراً، الكود غير صالح!";
       updateCartInterface();
     }
   } catch (err) {
     msg.style.display = "block";
     msg.style.color = "#e74c3c";
-    msg.textContent = "تعذر فحص الكوبون، حاول مجدداً.";
+    msg.textContent = "تعذر فحص الكوبون.";
   }
 });
 
 /* =========================================================
-   11. المزامنة الحية مع فايربيز (Firestore Sync)
+   10. المزامنة الحية مع فايربيز Firestore
    ========================================================= */
 onSnapshot(perfumesCol, (snapshot) => {
-  if (!snapshot.empty) {
-    const firebaseList = [];
-    snapshot.forEach(d => {
-      const data = d.data();
-      firebaseList.push({
-        id: d.id,
-        name: data.name,
-        category: data.category || "unisex",
-        price: Number(data.price || 300),
-        oldPrice: data.oldPrice ? Number(data.oldPrice) : null,
-        sizes: data.sizes || null,
-        stocks: data.stocks || null,
-        stock: data.stock !== undefined ? Number(data.stock) : 15,
-        bestseller: data.bestseller === true,
-        desc: data.desc || "",
-        notes: data.notes || data.desc || "توليفة عطرية مركزة ومحاكاة دقيقة للأصلية",
-        image: data.image || "image/S1.png"
-      });
+  const firebaseList = [];
+  snapshot.forEach(d => {
+    const data = d.data();
+    firebaseList.push({
+      id: d.id,
+      name: data.name,
+      category: data.category || "unisex",
+      price: Number(data.price || 300),
+      sizes: data.sizes || null,
+      stocks: data.stocks || null,
+      stock: data.stock !== undefined ? Number(data.stock) : 15,
+      bestseller: data.bestseller === true,
+      desc: data.desc || "",
+      notes: data.notes || "توليفة عطرية مركزة ومحاكاة دقيقة للأصلية",
+      image: data.image || "image/S1.png"
     });
+  });
 
-    if (firebaseList.length > 0) {
-      products = firebaseList;
-      renderCatalog();
-    }
-  }
+  products = firebaseList;
+  renderCatalog();
 });
 
-// جلب إعدادات المتجر العامة (رقم الواتساب)
 onSnapshot(settingsDoc, (snap) => {
   if (snap.exists()) {
     const d = snap.data();
@@ -1300,6 +1083,6 @@ onSnapshot(settingsDoc, (snap) => {
   }
 });
 
-// تشغيل الواجهة
+// تشغيل الشاشات
 updateBadges();
 renderCatalog();
