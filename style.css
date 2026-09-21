@@ -1603,7 +1603,8 @@ body.dark-mode .sharaqa-style-footer {
     gap: 8px;
     padding: 10px 12px;
     border-radius: 14px;
-    overflow: hidden;
+    overflow: visible;
+     
   }
   .category-pills-scroll {
     flex: 1;
@@ -1726,4 +1727,29 @@ body.dark-mode .sharaqa-style-footer {
     white-space: nowrap;
   }
   .review-mini-card { width: 120px; height: 160px; }
+}
+.custom-sort-menu { z-index: 2000 !important; }
+.custom-sort-menu.open { display: block !important; }
+.custom-sort-container { position: relative; }
+@media (max-width: 768px) {
+  .custom-sort-menu { left: auto !important; right: 0 !important; width: 190px; }
+}
+/* ترتيب الهيدر على الموبايل */
+@media (max-width: 768px) {
+  .header-inner {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px;
+  }
+  .dream-brand { order: 1 !important; margin-left: auto; }
+  .dream-header-tools { order: 2 !important; gap: 10px; }
+  .dream-search-bar { order: 3 !important; flex-basis: 100% !important; }
+  .main-store-logo { height: 40px !important; max-height: 40px !important; }
+  .cart-icon-bubble { width: 36px; height: 36px; font-size: 1rem; }
+  .switch-ui { width: 44px; height: 24px; }
+  .slider-switch::before { height: 18px; width: 18px; }
+  .switch-ui input:checked + .slider-switch::before { transform: translateX(-20px); }
 }
