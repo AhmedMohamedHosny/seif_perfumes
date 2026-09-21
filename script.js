@@ -1135,37 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // زر المحادثة المترنح والنط (Bouncing Chat)
-  const chatLink = document.querySelector('.chat-circle-link');
-  const chatIcon = document.querySelector('.chat-icon');
-  if (chatLink && chatIcon) {
-    const whatsappUrl = `https://wa.me/${adminWhatsappNumber}`; 
-    const messengerUrl = "https://www.facebook.com/share/19QeSsq7MN/";
-    let isWhatsApp = true;
 
-    setInterval(() => {
-      chatIcon.classList.add('rotate-anim');
-      setTimeout(() => {
-        if (isWhatsApp) {
-          chatLink.classList.remove('whatsapp-mode');
-          chatLink.classList.add('messenger-mode');
-          chatLink.href = messengerUrl;
-          chatIcon.className = 'chat-icon fa-brands fa-facebook-messenger rotate-anim';
-          isWhatsApp = false;
-        } else {
-          chatLink.classList.remove('messenger-mode');
-          chatLink.classList.add('whatsapp-mode');
-          chatLink.href = `https://wa.me/${adminWhatsappNumber}`;
-          chatIcon.className = 'chat-icon fa-brands fa-whatsapp rotate-anim';
-          isWhatsApp = true;
-        }
-      }, 250);
-
-      setTimeout(() => {
-        chatIcon.classList.remove('rotate-anim');
-      }, 500);
-    }, 5000);
-  }
 
   // الفلاتر الجانبية والأكورديون
   const filterToggleBtn = document.querySelector('.desktop-filter-btn');
@@ -1254,4 +1224,13 @@ document.getElementById("search-form")?.addEventListener("submit", (e) => {
   currentPage = 1;
   renderCatalog();
   document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+});
+/* ===== زرار البحث في الشريط السفلي (موبايل) ===== */
+document.getElementById("mob-search-trigger")?.addEventListener("click", () => {
+  const bar = document.querySelector(".dream-search-bar");
+  const input = document.getElementById("search-input");
+  if (bar) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => input?.focus(), 400);
+  }
 });
