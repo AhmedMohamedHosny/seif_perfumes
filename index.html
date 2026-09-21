@@ -174,7 +174,15 @@
       <div class="dream-products-grid" id="catalog-products-container">
         <!-- يتم حقن كروت العطور تلقائياً عبر script.js -->
       </div>
-
+      <!-- رسالة عدم وجود عطور -->
+      <div class="empty-store-state" id="no-products-box" style="display:none;">
+        <div class="empty-icon-circle"><i class="fa-solid fa-spray-can-sparkles"></i></div>
+        <h3>لسه مفيش عطور معروضة</h3>
+        <p>جاري تجهيز التشكيلة الجديدة، تابعنا قريباً 🌹</p>
+        <a href="https://wa.me/201044509946" target="_blank" class="empty-wa-btn">
+          <i class="fa-brands fa-whatsapp"></i> اسأل عن المتاح دلوقتي
+        </a>
+      </div>
       <!-- شريط أرقام الصفحات -->
       <div class="dream-pagination-bar" id="pagination-container"></div>
 
@@ -267,9 +275,7 @@
         <div class="sharaqa-copyright">
           © 2026 سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.
         </div>
-        <div class="sharaqa-developer" dir="ltr">
-          Designed with care in Cairo by <a href="https://wa.me/201101579399" target="_blank">ENG : Ahmed Mohamed</a>
-        </div>
+
       </div>
 
     </div>
@@ -369,6 +375,6 @@
   <!-- مكتبات Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  <script src="script.js"></script>
+<script type="module" src="script.js"></script>  
 </body>
 </html>
