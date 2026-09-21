@@ -1767,3 +1767,32 @@ body.dark-mode .sharaqa-style-footer {
   .alternating-chat-widget { bottom: 92px !important; left: 10px !important; }
   .chat-circle-link { width: 42px !important; height: 42px !important; font-size: 1.2rem !important; }
 }
+/* إخفاء نافذة النظرة السريعة (غير مستخدمة حالياً) */
+.quick-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+}
+.quick-modal-backdrop.open { display: flex; }
+.quick-modal-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  max-width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px;
+  position: relative;
+}
+.close-modal-btn {
+  position: absolute;
+  top: 10px; left: 10px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
