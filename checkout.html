@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تأكيد الشحن والفاتورة - متجر سيف للعطور للتركيبات والعطور الفاخرة">
+  <title>تأكيد الشحن وإتمام الطلب | سيف للعطور - SEIF PERFUMES</title>
+
+  <!-- أيقونة التبويب وشعار متجر سيف للعطور -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="shortcut icon" href="logo.png" type="image/png">
+
+  <!-- الخط الرسمي والأيقونات -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    .checkout-main-canvas {
+      padding: 25px 0 80px;
+      min-height: 80vh;
+    }
+
+    .checkout-flow-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .flow-step.done {
+      color: var(--dream-green);
+    }
+
+    .flow-step.active {
+      color: var(--text-main);
+      font-weight: 900;
+    }
+
+    .flow-step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+
+    .flow-step.done .flow-step-number {
+      background: var(--dream-green-light);
+      color: var(--dream-green);
+      border-color: var(--dream-green);
+    }
+
+    .flow-step.active .flow-step-number {
+      background: var(--dream-green);
+      color: #ffffff;
+      border-color: var(--dream-green);
+      box-shadow: 0 2px 8px var(--dream-green-glow);
+    }
+
+    .flow-step-connector {
+      width: 40px;
+      height: 2px;
+      background: var(--border-color);
+    }
+
+    .checkout-content-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 25px;
+      align-items: flex-start;
+    }
+
+    .checkout-card-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 26px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 20px;
+    }
+
+    .checkout-card-panel h2 {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .checkout-card-panel h2 i {
+      color: var(--dream-green);
+      font-size: 1.1rem;
+    }
+
+    .input-field-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .input-field-block label {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .input-field-block label span.star {
+      color: var(--discount-red);
+    }
+
+    .input-field-block input,
+    .input-field-block select,
+    .input-field-block textarea {
+      padding: 11px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-xs);
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      background: var(--bg-surface);
+      outline: none;
+      transition: var(--transition-normal);
+    }
+
+    .input-field-block input:focus,
+    .input-field-block select:focus,
+    .input-field-block textarea:focus {
+      border-color: var(--dream-green);
+      box-shadow: 0 0 0 3px var(--dream-green-glow);
+    }
+
+    .input-note-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .duo-inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .cash-option-box {
+      border: 1.5px solid var(--dream-green);
+      background: var(--dream-green-light);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    body.dark-mode .cash-option-box {
+      background: rgba(124, 179, 66, 0.12);
+      border-color: rgba(124, 179, 66, 0.4);
+    }
+
+    .cash-option-box i {
+      font-size: 1.8rem;
+      color: var(--dream-green);
+    }
+
+    .cash-option-texts strong {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+
+    .cash-option-texts small {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .checkout-summary-sidebar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      position: sticky;
+      top: 85px;
+    }
+
+    .checkout-summary-sidebar h3 {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .checkout-mini-items-list {
+      max-height: 250px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+      padding-left: 4px;
+    }
+
+    .mini-cart-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .mini-cart-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px;
+      flex-shrink: 0;
+    }
+
+    .mini-cart-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .mini-cart-desc {
+      flex: 1;
+    }
+
+    .mini-cart-desc h5 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+
+    .mini-cart-desc span {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .mini-cart-total {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: var(--discount-red);
+    }
+
+    .summary-calc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .summary-calc-row strong {
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    .summary-calc-divider {
+      border: none;
+      border-top: 1px dashed var(--border-color);
+      margin: 14px 0;
+    }
+
+    .summary-final-due {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .summary-final-due span {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+
+    .summary-final-due strong {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--discount-red);
+    }
+
+    .inspection-badge-note {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xs);
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .inspection-badge-note i {
+      font-size: 1.3rem;
+      color: var(--dream-green);
+    }
+
+    .payment-tab-option {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      transition: var(--transition-normal);
+    }
+
+    .payment-tab-option i {
+      font-size: 1.1rem;
+    }
+
+    .payment-tab-option.active {
+      border-color: var(--dream-green);
+      background: var(--dream-green-light);
+      color: var(--dream-green);
+      box-shadow: 0 0 0 1px var(--dream-green);
+    }
+
+    body.dark-mode .payment-tab-option.active {
+      background: rgba(124, 179, 66, 0.12);
+    }
+
+    .btn-confirm-order-final {
+      width: 100%;
+      background: linear-gradient(135deg, var(--dream-green), var(--dream-green-hover));
+      color: #ffffff;
+      border: none;
+      padding: 16px;
+      border-radius: var(--radius-pill);
+      font-size: 1.05rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px var(--dream-green-glow);
+      transition: var(--transition-normal);
+      margin-top: 10px;
+    }
+
+    .btn-confirm-order-final:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--dream-green-glow);
+    }
+
+    @media (max-width: 992px) {
+      .checkout-content-grid {
+        grid-template-columns: 1fr;
+      }
+      .checkout-summary-sidebar {
+        position: static;
+      }
+      .duo-inputs-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. شريط الإعلانات العلوي المتحرك -->
+  <div class="dream-top-ticker">
+    <div class="ticker-track">
+      <span>💎 عروض سيف للعطور الحصرية - ثبات يتخطى 48 ساعة محاكاة للأصلي 100%</span>
+      <span>•</span>
+      <span>🚚 معاينة الشحنة واختبار العطر والتأكد من الثبات أمام المندوب قبل الدفع</span>
+      <span>•</span>
+      <span>🎁 تستر 5 مل هدية مجانية من اختيارك مع كل زجاجة عطر</span>
+      <span>•</span>
+      <span>💵 الدفع نقداً عند الاستلام كاش بجميع المحافظات</span>
+    </div>
+  </div>
+
+  <!-- 2. رأس المتجر الموحد -->
+  <header class="dream-header">
+    <div class="container header-inner">
+      <a href="index.html" class="dream-brand">
+        <img src="logo.png" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo">
+      </a>
+
+      <div class="dream-header-tools">
+        <div class="dark-mode-toggle-wrap" title="تبديل الوضع الليلي / الفاتح">
+          <label class="switch-ui" for="dark-mode-checkbox">
+            <input type="checkbox" id="dark-mode-checkbox">
+            <span class="slider-switch round">
+              <i class="fa-solid fa-sun icon-sun"></i>
+              <i class="fa-solid fa-moon icon-moon"></i>
+            </span>
+          </label>
+        </div>
+
+        <div class="header-v-divider"></div>
+
+        <a href="cart.html" class="dream-brand" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); text-decoration: none;">
+          <i class="fa-solid fa-cart-shopping"></i> العودة للسلة
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. مساحة تأكيد الشحن والفاتورة -->
+  <main class="checkout-main-canvas">
+    <div class="container">
+      
+      <!-- مؤشر مسار الخطوات -->
+      <div class="checkout-flow-stepper">
+        <div class="flow-step done">
+          <div class="flow-step-number"><i class="fa-solid fa-check"></i></div>
+          <span>عربة التسوق</span>
+        </div>
+        <div class="flow-step-connector"></div>
+        <div class="flow-step active">
+          <div class="flow-step-number">2</div>
+          <span>بيانات التوصيل والعنوان</span>
+        </div>
+        <div class="flow-step-connector"></div>
+        <div class="flow-step">
+          <div class="flow-step-number">3</div>
+          <span>المعاينة والاستلام</span>
+        </div>
+      </div>
+
+      <div class="checkout-content-grid">
+        
+        <!-- استمارة كتابة العنوان والبيانات -->
+        <div class="checkout-forms-column">
+          <form id="checkout-dispatch-form">
+            
+            <!-- الصندوق الأول: بيانات المشتري -->
+            <section class="checkout-card-panel">
+              <h2><i class="fa-solid fa-user-check"></i> بيانات المشتري وأرقام التواصل</h2>
+
+              <div class="input-field-block">
+                <label for="order-fullname">الاسم الثلاثي بالكامل <span class="star">*</span></label>
+                <input type="text" id="order-fullname" placeholder="أدخل اسمك الثلاثي" required>
+                <span class="input-note-hint">الاسم المدون لتسليم الشحنة لك شخصياً.</span>
+              </div>
+
+              <div class="duo-inputs-row">
+                <div class="input-field-block">
+                  <label for="order-phone1">رقم الهاتف الأساسي (الواتساب) <span class="star">*</span></label>
+                  <input type="tel" id="order-phone1" placeholder="01012345678" maxlength="11" pattern="^01[0125][0-9]{8}$" required>
+                  <span class="input-note-hint">سيتواصل معك المندوب على هذا الرقم قبل الوصول.</span>
+                </div>
+
+                <div class="input-field-block">
+                  <label for="order-phone2">رقم هاتف إضافي <span class="star">*</span></label>
+                  <input type="tel" id="order-phone2" placeholder="01198765432" maxlength="11" required>
+                  <span class="input-note-hint">رقم بديل للطوارئ لضمان استلامك للطلب.</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- الصندوق الثاني: العنوان وحساب الشحن -->
+            <section class="checkout-card-panel">
+              <h2><i class="fa-solid fa-location-dot"></i> عنوان التوصيل والشحن</h2>
+
+              <div class="duo-inputs-row">
+                <div class="input-field-block">
+                  <label for="order-gov">المحافظة <span class="star">*</span></label>
+                  <select id="order-gov" required>
+                    <option value="">حدد المحافظة لحساب الشحن...</option>
+                    <option value="القاهرة" data-shipping="35">القاهرة (35 ج.م)</option>
+                    <option value="الجيزة" data-shipping="35">الجيزة (35 ج.م)</option>
+                    <option value="الإسكندرية" data-shipping="45">الإسكندرية (45 ج.م)</option>
+                    <option value="القليوبية" data-shipping="40">القليوبية (40 ج.م)</option>
+                    <option value="الشرقية" data-shipping="45">الشرقية (45 ج.م)</option>
+                    <option value="الدقهلية" data-shipping="45">الدقهلية (45 ج.م)</option>
+                    <option value="الغربية" data-shipping="45">الغربية (45 ج.م)</option>
+                    <option value="المنوفية" data-shipping="45">المنوفية (45 ج.م)</option>
+                    <option value="البحيرة" data-shipping="45">البحيرة (45 ج.م)</option>
+                    <option value="كفر الشيخ" data-shipping="45">كفر الشيخ (45 ج.م)</option>
+                    <option value="دمياط" data-shipping="45">دمياط (45 ج.م)</option>
+                    <option value="بورسعيد" data-shipping="50">بورسعيد (50 ج.م)</option>
+                    <option value="الإسماعيلية" data-shipping="50">الإسماعيلية (50 ج.م)</option>
+                    <option value="السويس" data-shipping="50">السويس (50 ج.م)</option>
+                    <option value="الفيوم" data-shipping="50">الفيوم (50 ج.م)</option>
+                    <option value="بني سويف" data-shipping="50">بني سويف (50 ج.م)</option>
+                    <option value="المنيا" data-shipping="55">المنيا (55 ج.م)</option>
+                    <option value="أسيوط" data-shipping="55">أسيوط (55 ج.م)</option>
+                    <option value="سوهاج" data-shipping="55">سوهاج (55 ج.م)</option>
+                    <option value="قنا" data-shipping="60">قنا (60 ج.م)</option>
+                    <option value="الأقصر" data-shipping="60">الأقصر (60 ج.م)</option>
+                    <option value="أسوان" data-shipping="60">أسوان (60 ج.م)</option>
+                    <option value="مطروح" data-shipping="65">مطروح (65 ج.م)</option>
+                    <option value="البحر الأحمر" data-shipping="65">البحر الأحمر (65 ج.م)</option>
+                  </select>
+                </div>
+
+                <div class="input-field-block">
+                  <label for="order-city">المدينة / الحي / المنطقة <span class="star">*</span></label>
+                  <input type="text" id="order-city" placeholder="مثال: مدينة نصر / المعادي / سموحة" required>
+                </div>
+              </div>
+
+              <div class="input-field-block">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label for="order-full-address" style="margin:0;">العنوان بالتفصيل <span class="star">*</span></label>
+                  <button type="button" id="btn-geo-location" style="background: var(--dream-green-light); border: 1px dashed var(--dream-green); color: var(--dream-green); padding: 5px 12px; border-radius: 6px; font-size: 0.76rem; font-weight: 800; cursor: pointer;">
+                    <i class="fa-solid fa-location-crosshairs"></i> تحديد موقعي تلقائياً
+                  </button>
+                </div>
+                <input type="text" id="order-full-address" placeholder="اسم الشارع، رقم العمارة، الدور، الشقة، وأقرب علامة مميزة..." required style="width: 100%; padding: 12px 14px; font-size: 0.88rem;">
+                <input type="hidden" id="geo-map-link">
+                <span id="geo-status-text" style="font-size: 0.74rem; color: var(--dream-green); font-weight: 700; display: none; margin-top: 4px;"></span>
+                <span class="input-note-hint">اكتب تفاصيل العنوان كاملة ليصلك المندوب لباب البيت مباشرة.</span>
+              </div>
+
+              <div class="input-field-block">
+                <label for="order-notes">ملاحظات لمندوب الشحن أو التستر المفضل (اختياري)</label>
+                <input type="text" id="order-notes" placeholder="مثال: يرجى إرفاق تستر عطر ساوفاج كهدية، أو الاتصال قبل الوصول...">
+              </div>
+            </section>
+
+            <!-- الصندوق الثالث: اختيار طريقة الدفع -->
+            <section class="checkout-card-panel">
+              <h2><i class="fa-solid fa-hand-holding-dollar"></i> طريقة السداد</h2>
+
+              <div style="display:flex; gap:10px; margin-bottom:16px;">
+                <label class="payment-tab-option active" id="tab-cash-label">
+                  <input type="radio" name="payment-method" value="cash" checked style="display:none;">
+                  <i class="fa-solid fa-money-bill-wave"></i>
+                  <span>كاش عند الاستلام</span>
+                </label>
+                <label class="payment-tab-option" id="tab-vodafone-label">
+                  <input type="radio" name="payment-method" value="vodafone" style="display:none;">
+                  <i class="fa-solid fa-mobile-screen-button"></i>
+                  <span>فودافون كاش</span>
+                </label>
+              </div>
+
+              <div class="cash-option-box" id="cash-method-details">
+                <i class="fa-solid fa-money-bill-wave"></i>
+                <div class="cash-option-texts">
+                  <strong>الدفع نقداً عند الاستلام كاش</strong>
+                  <small>افتح الشحنة اختبر ثبات العطر والتستر بنفسك قبل دفع مليم واحد للمندوب.</small>
+                </div>
+              </div>
+
+              <div class="cash-option-box" id="vodafone-method-details" style="display:none;">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <div class="cash-option-texts">
+                  <strong>الدفع عبر فودافون كاش</strong>
+                  <small>هيتواصل معاك المندوب عبر الواتساب برقم فودافون كاش المتجر لإتمام التحويل قبل الشحن.</small>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-confirm-order-final">
+                <span>تأكيد طلب العطور</span>
+                <i class="fa-solid fa-arrow-left"></i>
+              </button>
+            </section>
+
+          </form>
+        </div>
+
+        <!-- عمود الفاتورة والملخص المالي الجانبي -->
+        <aside class="checkout-summary-sidebar">
+          <h3>ملخص الفاتورة (<span id="cart-items-qty">0</span> زجاجات)</h3>
+
+          <div class="checkout-mini-items-list" id="mini-order-items">
+            <!-- يتم حقن العطور المختصرة هنا -->
+          </div>
+
+          <div class="summary-calc-row">
+            <span>إجمالي العطور:</span>
+            <strong id="mini-subtotal-val">0.00 ج.م</strong>
+          </div>
+
+          <div class="summary-calc-row">
+            <span>التسترات الهدايا:</span>
+            <strong id="mini-gifts-val" style="color:var(--dream-green);">0 تسترات مجانية 🎁</strong>
+          </div>
+
+          <div class="summary-calc-row">
+            <span>مصاريف الشحن:</span>
+            <strong id="mini-shipping-val">حدد المحافظة</strong>
+          </div>
+
+          <hr class="summary-calc-divider">
+
+          <div class="summary-final-due">
+            <span>المبلغ المستحق:</span>
+            <strong id="mini-grand-total">0.00 ج.م</strong>
+          </div>
+
+          <div class="inspection-badge-note">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>معاينة واختبار أمام المندوب: يحق لك فتح كرتونة الشحن بالكامل وتجربة التستر المرفق والتأكد من الثبات قبل السداد.</span>
+          </div>
+        </aside>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- tذيل المتجر الموحد -->
+  <footer class="dream-footer">
+    <div class="footer-bottom-glow"></div>
+    <div class="container">
+      
+      <div class="footer-simple-center">
+        <div class="footer-simple-card">
+          <img src="logo.png" alt="محل سيف للعطور">
+        </div>
+        <div class="footer-simple-brand-text">
+          <h3>متجر سيف للعطور - SEIF PERFUMES</h3>
+          <p>زيوت عطرية أصلية 100% • ثبات عالي • اختبار وتجربة أمام المندوب قبل الدفع</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex-dream">
+          
+          <div class="footer-copy-right">
+            <span>© 2026 سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.</span>
+          </div>
+
+          <div class="footer-social-mid">
+            <a href="#" target="_blank" title="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" title="انستجرام"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+
+          <div class="footer-dev-left" dir="ltr">
+            <span class="dev-label-eng">Designed &amp; Developed by</span>
+            <a href="https://wa.me/201101579399" target="_blank" class="dev-eng-highlight" title="Contact Developer on WhatsApp">
+              ENG : Ahmed Mohamed
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- 5. زر المحادثة العائم المتناوب -->
+  <div class="alternating-chat-widget" id="alternating-chat-btn" title="تواصل معنا">
+    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
+      <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
+    </a>
+  </div>
+
+  <!-- شاشة إغلاق المتجر والصيانة -->
+  <div class="store-closed-screen" id="store-closed-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; z-index: 9999999; margin: 0; padding: 16px; box-sizing: border-box;">
+    <div class="closed-glass-box" style="margin: auto; max-width: 92vw; width: 100%;">
+      <img src="logo.png" alt="سيف للعطور" style="height: 55px; margin: 0 auto 10px; display: block;">
+      <h2>جاري تحديث قائمة العطور</h2>
+      <p>نقوم حالياً بإضافة تشكيلة عطرية جديدة وتحديث الأسعار والمخزون.<br>نعود إليكم في أبهى حلة خلال وقت قصير بإذن الله.</p>
+      <a href="https://wa.me/201101579399" target="_blank" class="btn-choose-option-green" style="margin: 0 auto; max-width: 280px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(124, 179, 66, 0.4); background:#25d366; color:#fff;">
+        <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> تواصل مع الإدارة مباشرة
+      </a>
+    </div>
+  </div>
+
+  <!-- المحرك البرمجي لحساب الشحن وإرسال طلب العطور للواتساب -->
+  <script>
+    'use strict';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS8OE9Q",
+      authDomain: "seif-perfumes.firebaseapp.com",
+      projectId: "seif-perfumes",
+      storageBucket: "seif-perfumes.firebasestorage.app",
+      messagingSenderId: "464823513051",
+      appId: "1:464823513051:web:2ef7412e119dac739981fe",
+      measurementId: "G-NW3VJW5BBH"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // مزامنة حالة إغلاق المتجر
+    function applyStoreClosedState(isClosed) {
+      const modal = document.getElementById('store-closed-modal');
+      if (!modal) return;
+      if (isClosed) {
+        modal.style.setProperty('display', 'flex', 'important');
+        document.body.style.overflow = 'hidden';
+      } else {
+        modal.style.setProperty('display', 'none', 'important');
+        document.body.style.overflow = '';
+      }
+    }
+
+    applyStoreClosedState(localStorage.getItem('seif_store_closed') === 'true');
+    db.collection('settings').doc('status').onSnapshot(doc => {
+      if (doc.exists) {
+        const closed = doc.data().isClosed === true;
+        localStorage.setItem('seif_store_closed', closed ? 'true' : 'false');
+        applyStoreClosedState(closed);
+      }
+    }, err => {});
+
+    const cart = JSON.parse(localStorage.getItem('seif_cart')) || [];  
+    if (cart.length === 0) {
+      alert('عربة التسوق فارغة! اختر عطرك المفضل أولاً.');
+      window.location.href = 'index.html';
+    }
+
+    const itemsContainer = document.getElementById('mini-order-items');
+    const qtyBadge = document.getElementById('cart-items-qty');
+    const subtotalEl = document.getElementById('mini-subtotal-val');
+    const giftsEl = document.getElementById('mini-gifts-val');
+    const shippingEl = document.getElementById('mini-shipping-val');
+    const grandTotalEl = document.getElementById('mini-grand-total');
+    const govSelect = document.getElementById('order-gov');
+    const dispatchForm = document.getElementById('checkout-dispatch-form');
+
+    const totalQuantity = cart.reduce((acc, i) => acc + (Number(i.quantity) || 1), 0);
+    const subtotalPrice = cart.reduce((acc, i) => acc + (Number(i.price || 300) * (Number(i.quantity) || 1)), 0);
+
+    qtyBadge.textContent = totalQuantity;
+    subtotalEl.textContent = `${subtotalPrice.toLocaleString('ar-EG')} ج.م`;
+    if (giftsEl) giftsEl.textContent = `${totalQuantity} تسترات مجانية (5مل) 🎁`;
+
+    // عرض عناصر العطور المصغرة
+    itemsContainer.innerHTML = cart.map(item => `
+      <div class="mini-cart-item">
+        <div class="mini-cart-thumb">
+          <img src="${item.image || 'image/S1.png'}" alt="${item.name}">
+        </div>
+        <div class="mini-cart-desc">
+          <h5>${item.name}</h5>
+          <span style="color:var(--dream-green); font-weight:800; display:block;">الحجم: ${item.size || 50} مل</span>
+          <span>الكمية: (${item.quantity}) × ${(Number(item.price || 300)).toLocaleString('ar-EG')} ج.م</span>
+        </div>
+        <div class="mini-cart-total">
+          ${(Number(item.price || 300) * Number(item.quantity || 1)).toLocaleString('ar-EG')} ج.م
+        </div>
+      </div>
+    `).join('');
+
+    let selectedPaymentMethod = 'cash';
+    document.getElementById('tab-cash-label')?.addEventListener('click', () => {
+      selectedPaymentMethod = 'cash';
+      document.getElementById('tab-cash-label').classList.add('active');
+      document.getElementById('tab-vodafone-label').classList.remove('active');
+      document.getElementById('cash-method-details').style.display = 'flex';
+      document.getElementById('vodafone-method-details').style.display = 'none';
+    });
+
+    document.getElementById('tab-vodafone-label')?.addEventListener('click', () => {
+      selectedPaymentMethod = 'vodafone';
+      document.getElementById('tab-vodafone-label').classList.add('active');
+      document.getElementById('tab-cash-label').classList.remove('active');
+      document.getElementById('vodafone-method-details').style.display = 'flex';
+      document.getElementById('cash-method-details').style.display = 'none';
+    });
+
+    // تحديد الموقع التلقائي
+    document.getElementById('btn-geo-location')?.addEventListener('click', () => {
+      const statusText = document.getElementById('geo-status-text');
+      const mapInput = document.getElementById('geo-map-link');
+
+      if (!navigator.geolocation) {
+        alert("خاصية تحديد الموقع غير مدعومة في متصفحك.");
+        return;
+      }
+
+      statusText.style.display = 'block';
+      statusText.textContent = "جاري التقاط إحداثيات موقعك عبر الأقمار الصناعية...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          if (mapInput) mapInput.value = mapUrl;
+          statusText.textContent = "✅ تم تثبيت موقعك الجغرافي بنجاح لمساعدة المندوب!";
+        },
+        () => {
+          statusText.textContent = "تعذر تحديد الموقع تلقائياً. يرجى ملء الحقول يدوياً.";
+        }
+      );
+    });
+
+    let activeShippingFee = 0;
+    (async function syncGovRatesToCheckout() {
+      let customRates = null;
+      try {
+        const doc = await db.collection('settings').doc('shipping').get();
+        if (doc.exists) customRates = doc.data();
+      } catch (e) {}
+      if (!customRates) customRates = JSON.parse(localStorage.getItem('seif_gov_shipping_rates'));
+      if (!customRates || !govSelect) return;
+
+      const govIdMap = {
+        "القاهرة": "cairo", "الجيزة": "giza", "الإسكندرية": "alex", "القليوبية": "qalyubia",
+        "الشرقية": "sharqia", "الدقهلية": "dakahlia", "الغربية": "gharbia", "المنوفية": "monufia",
+        "البحيرة": "beheira", "كفر الشيخ": "kafr_el_sheikh", "دمياط": "damietta", "بورسعيد": "port_said",
+        "الإسماعيلية": "ismailia", "السويس": "suez", "الفيوم": "fayoum", "بني سويف": "beni_suef",
+        "المنيا": "minya", "أسيوط": "assiut", "سوهاج": "sohag", "قنا": "qena", "الأقصر": "luxor",
+        "أسوان": "aswan", "مطروح": "matrouh", "البحر الأحمر": "red_sea", "الوادي الجديد": "new_valley",
+        "شمال سيناء": "north_sinai", "جنوب سيناء": "south_sinai"
+      };
+
+      Array.from(govSelect.options).forEach(opt => {
+        const govKey = govIdMap[opt.value];
+        if (govKey && customRates[govKey] !== undefined) {
+          const newFee = customRates[govKey];
+          opt.setAttribute('data-shipping', newFee);
+          opt.textContent = `${opt.value} (${newFee} ج.م)`;
+        }
+      });
+    })();
+
+    function recalculateGrandTotal() {
+      const selectedOption = govSelect.options[govSelect.selectedIndex];
+      const fee = parseFloat(selectedOption.getAttribute('data-shipping')) || 0;
+
+      if (fee > 0) {
+        activeShippingFee = fee;
+        shippingEl.textContent = `${activeShippingFee.toLocaleString('ar-EG')} ج.م`;
+      } else {
+        activeShippingFee = 0;
+        shippingEl.textContent = 'حدد المحافظة';
+      }
+
+      const grandTotal = subtotalPrice + activeShippingFee;
+      grandTotalEl.textContent = `${grandTotal.toLocaleString('ar-EG')} ج.م`;
+    }
+
+    govSelect.addEventListener('change', recalculateGrandTotal);
+
+    // معالجة وإرسال فاتورة العطور
+    dispatchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fullName = document.getElementById('order-fullname').value.trim();
+      const phone1 = document.getElementById('order-phone1').value.trim();
+      const phone2 = document.getElementById('order-phone2').value.trim();
+      const governorate = govSelect.value;
+      const city = document.getElementById('order-city').value.trim();
+      const address = document.getElementById('order-full-address').value.trim();
+      const notes = document.getElementById('order-notes').value.trim();
+      const mapLink = document.getElementById('geo-map-link').value.trim();
+      const paymentMethodText = selectedPaymentMethod === 'vodafone' ? 'فودافون كاش' : 'كاش عند الاستلام';
+
+      if (!governorate) {
+        alert('يرجى تحديد المحافظة لحساب تكلفة التوصيل بدقة.');
+        govSelect.focus();
+        return;
+      }
+
+      const itemsListText = cart.map((item, idx) => 
+        `🔹 *${idx + 1}.* ${item.name}%0A   💧 *الحجم:* ${item.size || 50} مل%0A   🎁 *التستر المجاني:* 1 تستر (5مل)%0A   الكمية: (${item.quantity} زجاجات) | السعر: ${(Number(item.price || 300) * Number(item.quantity || 1)).toLocaleString('ar-EG')} ج.م`
+      ).join('%0A');
+
+      const finalAmount = subtotalPrice + activeShippingFee;
+      const orderDate = new Date().toLocaleDateString('ar-EG', { dateStyle: 'full' });
+
+      const whatsappBill = 
+        `💎 *طلب شراء عطور جديد - سيف للعطور (SEIF PERFUMES)*%0A` +
+        `📅 *تاريخ الطلب:* ${orderDate}%0A` +
+        `----------------------------------------%0A` +
+        `👤 *بيانات المستلم:*%0A` +
+        `• *الاسم بالكامل:* ${fullName}%0A` +
+        `• *رقم الهاتف (الواتساب):* ${phone1}%0A` +
+        `• *رقم هاتف بديل:* ${phone2}%0A` +
+        `----------------------------------------%0A` +
+        `📍 *عنوان الشحن بالتفصيل:*%0A` +
+        `• *المحافظة:* ${governorate}%0A` +
+        `• *المدينة / الحي:* ${city}%0A` +
+        `• *العنوان:* ${address}%0A` +
+        (mapLink ? `• *الموقع على الخريطة:* ${mapLink}%0A` : '') +
+        (notes ? `• *ملاحظات وتسترات هدايا:* ${notes}%0A` : '') +
+        `----------------------------------------%0A` +
+        `🛍️ *العطور والتسترات المطلوبة:*%0A${itemsListText}%0A` +
+        `🎁 *إجمالي التسترات الهدية:* (${totalQuantity}) تسترات مجانية 5مل%0A` +
+        `----------------------------------------%0A` +
+        `💵 *الحساب المالي:*%0A` +
+        `• إجمالي العطور: ${subtotalPrice.toLocaleString('ar-EG')} ج.م%0A` +
+        `• مصاريف الشحن: ${activeShippingFee.toLocaleString('ar-EG')} ج.م%0A` +
+        `• *المبلغ الإجمالي المستحق:* ${finalAmount.toLocaleString('ar-EG')} ج.م%0A` +
+        `• *طريقة الدفع:* ${paymentMethodText} مع المعاينة والاختبار.%0A` +
+        `----------------------------------------%0A` +
+        `✨ *ضمان سيف للعطور:* يتم تسليم الشحنة مع حق فتح الكرتونة واختبار ثبات العطر والتستر أمام المندوب.`;
+
+      try {
+        await db.collection('orders').add({
+          customerName: fullName,
+          phone: phone1,
+          phone2: phone2,
+          gov: governorate,
+          address: `${city} - ${address}`,
+          paymentMethod: paymentMethodText,
+          items: cart.map(i => `${i.name} [حجم: ${i.size || 50}مل] (${i.quantity}) × ${i.price} ج.م`).join(' | '),
+          itemsDetailed: cart.map(i => ({
+            productId: i.id,
+            name: i.name,
+            size: i.size || 50,
+            quantity: Number(i.quantity) || 1,
+            price: Number(i.price || 300)
+          })),
+          total: finalAmount,
+          status: 'قيد التجهيز ⏳',
+          createdAt: new Date().toISOString()
+        });
+
+        localStorage.removeItem('seif_cart');
+      } catch (err) {
+        console.warn('تعذر حفظ الطلب:', err.message);
+      }
+
+      const storeWhatsAppNumber = localStorage.getItem('seif_whatsapp_number') || '201101579399';
+      window.open(`https://wa.me/${storeWhatsAppNumber}?text=${whatsappBill}`, '_blank');
+    });
+
+    // مزامنة الوضع الليلي
+    const darkCheckbox = document.getElementById('dark-mode-checkbox');
+    if (localStorage.getItem('seif_perfumes_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+      if (darkCheckbox) darkCheckbox.checked = true;
+    }
+    darkCheckbox?.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'light');
+      }
+    });
+
+    const chatLink = document.getElementById('chat-link');
+    const chatIcon = document.getElementById('chat-icon');
+    let isWhatsApp = true;
+    setInterval(() => {
+      isWhatsApp = !isWhatsApp;
+      chatIcon.classList.add('rotate-anim');
+      setTimeout(() => {
+        if (isWhatsApp) {
+          chatLink.className = 'chat-circle-link whatsapp-mode';
+          chatLink.href = 'https://wa.me/201101579399';
+          chatIcon.className = 'fa-brands fa-whatsapp chat-icon';
+        } else {
+          chatLink.className = 'chat-circle-link messenger-mode';
+          chatLink.href = 'https://m.me/seifperfumes';
+          chatIcon.className = 'fa-brands fa-facebook-messenger chat-icon';
+        }
+        chatIcon.classList.remove('rotate-anim');
+      }, 250);
+    }, 5000);
+
+    recalculateGrandTotal();
+  </script>
+</body>
+</html>
