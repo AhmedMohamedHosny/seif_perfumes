@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="تفاصيل ومواصفات العطر - متجر سيف للعطور (SEIF PERFUMES) للتركيبات والعطور الفاخرة">
+  <title>تفاصيل العطر | سيف للعطور - SEIF PERFUMES</title>
+
+  <!-- أيقونة التبويب وشعار متجر سيف للعطور -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="shortcut icon" href="logo.png" type="image/png">
+
+  <!-- الخط الرسمي كايرو وأيقونات Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- مكتبات Firebase لقراءة بيانات العطور -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* --------------------------------------------------------------------------
+       تنسيقات صفحة العطر لمتجر سيف للعطور
+       -------------------------------------------------------------------------- */
+    .product-page-canvas {
+      padding: 20px 0 60px;
+    }
+
+    /* مسار التصفح (Breadcrumbs) */
+    .dream-breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .dream-breadcrumbs a {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .dream-breadcrumbs a:hover {
+      color: var(--dream-green);
+    }
+
+    .dream-breadcrumbs span.separator {
+      color: var(--text-subtle);
+    }
+
+    .dream-breadcrumbs span.current-page {
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    /* بطاقة تفاصيل العطر الرئيسية */
+    .product-single-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 40px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 35px;
+    }
+
+    /* عمود الصورة والمعرض */
+    .product-gallery-box {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+
+    .single-discount-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: var(--discount-red);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-xs);
+      z-index: 3;
+    }
+
+    .main-image-viewport {
+      width: 100%;
+      height: 420px;
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 !important;
+      overflow: hidden;
+    }
+
+    .main-image-viewport img {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      transition: transform 0.4s ease;
+    }
+
+    .main-image-viewport:hover img {
+      transform: scale(1.05);
+    }
+
+    /* أزرار الأسهم يمين وشمال على الصورة */
+    .gallery-nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      transition: all 0.2s ease;
+    }
+
+    .gallery-nav-arrow:hover {
+      background-color: var(--dream-green);
+      color: #ffffff;
+      border-color: var(--dream-green);
+    }
+
+    .gallery-nav-arrow.prev-btn { right: 10px; }
+    .gallery-nav-arrow.next-btn { left: 10px; }
+
+    .gallery-dots-strip {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .gallery-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #d1d5db;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .gallery-dot.active {
+      background-color: var(--dream-green);
+      transform: scale(1.25);
+    }
+
+    /* صندوق اختيار حجم العطر */
+    .size-selection-panel {
+      margin-bottom: 22px;
+      background-color: var(--bg-elevated);
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+    }
+
+    .size-panel-header {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .size-panel-header span#selected-size-name {
+      color: var(--dream-green);
+      font-weight: 900;
+    }
+
+    .size-options-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .size-swatch-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-pill);
+      background: var(--bg-surface);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    .size-swatch-badge.active {
+      border-color: var(--dream-green);
+      background-color: var(--dream-green-light);
+      color: #2e560f;
+      font-weight: 800;
+      box-shadow: 0 0 0 1px var(--dream-green);
+    }
+
+    /* عمود البيانات وتأكيد الشراء */
+    .product-overview-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .overview-brand-tag {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--dream-green);
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .overview-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .overview-stars-strip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--star-gold);
+      margin-bottom: 18px;
+    }
+
+    .overview-stars-strip span {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .overview-pricing-panel {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .overview-price-red {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--discount-red);
+    }
+
+    .overview-price-old {
+      font-size: 1.1rem;
+      color: var(--text-subtle);
+      text-decoration: line-through;
+    }
+
+    .overview-stock-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .overview-stock-pill .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--stock-blue);
+      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
+    }
+
+    .purchase-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+    }
+
+    .detail-stepper-box {
+      display: inline-flex;
+      align-items: center;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-xs);
+      background-color: var(--bg-surface);
+      height: 48px;
+    }
+
+    .detail-step-btn {
+      width: 40px;
+      height: 100%;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-step-btn:hover {
+      background-color: var(--bg-elevated);
+      color: var(--text-main);
+    }
+
+    .detail-step-input {
+      width: 45px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--text-main);
+      border: none;
+      background: transparent;
+      outline: none;
+    }
+
+    .btn-detail-add-cart {
+      flex: 1;
+      height: 48px;
+      background-color: var(--dream-green);
+      color: #ffffff;
+      border-radius: var(--radius-xs);
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px var(--dream-green-glow);
+      transition: var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .btn-detail-add-cart:hover {
+      background-color: var(--dream-green-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-detail-buy-now {
+      height: 48px;
+      padding: 0 28px;
+      background-color: #1a1a1a;
+      color: #ffffff;
+      border-radius: var(--radius-xs);
+      font-size: 1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .btn-detail-buy-now:hover {
+      background-color: #333333;
+      transform: translateY(-2px);
+    }
+
+    /* ضمانات ومميزات محل سيف للعطور */
+    .shop-perks-list {
+      border-top: 1px solid var(--border-light);
+      padding-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .shop-perk-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .shop-perk-item i {
+      font-size: 1.1rem;
+      color: var(--dream-green);
+      width: 24px;
+      text-align: center;
+    }
+
+    /* تفاصيل النوتات والتركيب العطري */
+    .product-specs-section {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 40px;
+    }
+
+    .specs-header-tab {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text-main);
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--dream-green);
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .specs-table-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .spec-table-row {
+      display: flex;
+      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      font-size: 0.88rem;
+    }
+
+    .spec-table-row:nth-child(odd) {
+      background-color: var(--bg-elevated);
+    }
+
+    @media (max-width: 992px) {
+      .product-single-card {
+        grid-template-columns: 1fr;
+        padding: 20px;
+        gap: 25px;
+      }
+
+      .main-image-viewport {
+        height: 300px;
+      }
+
+      .overview-title {
+        font-size: 1.25rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dream-header .dream-search-bar { display: none !important; }
+      .product-page-canvas { padding: 12px 0 40px; }
+      .dream-breadcrumbs { font-size: 0.74rem; margin-bottom: 14px; }
+
+      .product-single-card {
+        padding: 12px;
+        gap: 14px;
+        border-radius: 10px;
+      }
+
+      .main-image-viewport {
+        height: 240px;
+      }
+
+      .gallery-nav-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+      }
+
+      .single-discount-badge {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+      }
+
+      .overview-title {
+        font-size: 1.05rem;
+        margin-bottom: 8px;
+      }
+
+      .overview-pricing-panel {
+        padding: 10px 14px;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .overview-price-red { font-size: 1.4rem; }
+      .overview-price-old { font-size: 0.9rem; }
+
+      .size-selection-panel { padding: 10px 12px; margin-bottom: 16px; }
+      .size-swatch-badge { padding: 5px 12px; font-size: 0.78rem; }
+
+      .purchase-actions-row { gap: 8px; margin-bottom: 18px; }
+      .detail-stepper-box, .btn-detail-add-cart, .btn-detail-buy-now { height: 42px; }
+      .btn-detail-add-cart, .btn-detail-buy-now { font-size: 0.86rem; }
+      .btn-detail-buy-now { padding: 0 16px; }
+
+      .shop-perk-item { font-size: 0.78rem; }
+      .product-specs-section { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. شريط الإعلانات المتحرك العلوي -->
+  <div class="dream-top-ticker">
+    <div class="ticker-track">
+      <span>💎 عروض سيف للعطور الحصرية - ثبات يتخطى 48 ساعة محاكاة للأصلي 100%</span>
+      <span>•</span>
+      <span>🚚 معاينة الشحنة واختبار العطر والتأكد من الثبات أمام المندوب قبل الدفع</span>
+      <span>•</span>
+      <span>🎁 تستر 5 مل هدية مجانية من اختيارك مع كل زجاجة عطر</span>
+      <span>•</span>
+      <span>💵 الدفع نقداً عند الاستلام كاش بجميع المحافظات</span>
+    </div>
+  </div>
+
+  <!-- 2. رأس المتجر الموحد -->
+  <header class="dream-header">
+    <div class="container header-inner">
+      <!-- شعار محل سيف للعطور -->
+      <a href="index.html" class="dream-brand">
+        <img src="logo.png" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo">
+      </a>
+
+      <!-- حقل البحث السريع المباشر -->
+      <form class="dream-search-bar" action="index.html" method="GET">
+        <input type="text" name="q" placeholder="ابحث عن عطرك المفضل، نوتة عطرية..." autocomplete="off">
+        <button type="submit" class="search-submit-btn" aria-label="بحث">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
+
+      <div class="dream-header-tools">
+        <!-- مفتاح الوضع الليلي -->
+        <div class="dark-mode-toggle-wrap" title="تبديل الوضع الليلي / الفاتح">
+          <label class="switch-ui" for="dark-mode-checkbox">
+            <input type="checkbox" id="dark-mode-checkbox">
+            <span class="slider-switch round">
+              <i class="fa-solid fa-sun icon-sun"></i>
+              <i class="fa-solid fa-moon icon-moon"></i>
+            </span>
+          </label>
+        </div>
+
+        <div class="header-v-divider"></div>
+
+        <!-- زر عربة التسوق الذي ينقل مباشرة لـ cart.html -->
+        <a href="cart.html" class="dream-cart-btn" title="عرض السلة">
+          <div class="cart-icon-bubble">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-qty-pill" id="cart-counter">0</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3. مسار التنقل وتفاصيل العطر -->
+  <main class="product-page-canvas">
+    <div class="container">
+      
+      <!-- شريط المسار (Breadcrumbs) -->
+      <nav class="dream-breadcrumbs">
+        <a href="index.html">الرئيسية</a>
+        <span class="separator">/</span>
+        <a href="index.html" id="crumb-cat-name">عطور فاخرة</a>
+        <span class="separator">/</span>
+        <span class="current-page" id="crumb-prod-title">جاري تحميل العطر...</span>
+      </nav>
+
+      <!-- بطاقة العطر الرئيسية -->
+      <section class="product-single-card">
+        
+        <!-- معرض الصور المجهز بالأسهم والتبديل المباشر -->
+        <div class="product-gallery-box" id="product-slider-wrapper">
+          <span class="single-discount-badge" id="detail-discount-tag">وفر 0.00 جنيه</span>
+          
+          <button class="gallery-nav-arrow prev-btn" id="slider-prev-btn" title="الصورة السابقة">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+          <div class="main-image-viewport">
+            <img id="detail-img" src="image/S1.png" alt="صورة العطر" style="transition: opacity 0.25s ease;">
+          </div>
+
+          <button class="gallery-nav-arrow next-btn" id="slider-next-btn" title="الصورة التالية">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <div class="gallery-dots-strip" id="gallery-dots-box"></div>
+        </div>
+
+        <!-- البيانات والأسعار وأزرار التنفيذ -->
+        <div class="product-overview-box">
+          <span class="overview-brand-tag" id="detail-brand">سيف للعطور ✦</span>
+          <h1 class="overview-title" id="detail-title">جاري تحميل بيانات العطر...</h1>
+
+          <div class="overview-stars-strip" style="flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span id="detail-stars-box"></span>
+              <span id="detail-reviews-num">(0 تقييم مشتري)</span>
+            </div>
+            <!-- تقييم الزائر التفاعلي -->
+            <div style="display: flex; align-items: center; gap: 6px; border-right: 2px solid var(--border-color); padding-right: 12px;">
+              <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">قيّم هذا العطر:</span>
+              <div class="interactive-stars-wrap" id="user-star-picker">
+                <span class="star-item" data-val="5">★</span>
+                <span class="star-item" data-val="4">★</span>
+                <span class="star-item" data-val="3">★</span>
+                <span class="star-item" data-val="2">★</span>
+                <span class="star-item" data-val="1">★</span>
+              </div>
+              <small id="rating-feedback" style="color: var(--dream-green); font-weight: 800; font-size: 0.75rem; display: none;">شكراً لتقييمك!</small>
+            </div>
+          </div>
+
+          <div class="overview-pricing-panel">
+            <span class="overview-price-red" id="detail-price">0.00 ج</span>
+            <span class="overview-price-old" id="detail-old-price">0.00 ج</span>
+          </div>
+
+          <div class="overview-stock-pill">
+            <span class="dot"></span>
+            <span id="stock-status-text">متوفر بالمخزن وجاهز للشحن الفوري</span>
+          </div>
+
+          <!-- قائمة اختيار الأحجام المتاحة للمنتج -->
+          <div class="size-selection-panel">
+            <div class="size-panel-header">
+              <span>الحجم المختار:</span>
+              <span id="selected-size-name">50 مل (الحجم القياسي)</span>
+            </div>
+            <div class="size-options-row" id="size-options-container">
+              <div class="size-swatch-badge" onclick="selectPerfumeSize(30, this)">
+                <i class="fa-solid fa-flask"></i> 30 مل
+              </div>
+              <div class="size-swatch-badge active" onclick="selectPerfumeSize(50, this)">
+                <i class="fa-solid fa-bottle-droplet"></i> 50 مل
+              </div>
+              <div class="size-swatch-badge" onclick="selectPerfumeSize(100, this)">
+                <i class="fa-solid fa-spray-can"></i> 100 مل
+              </div>
+            </div>
+          </div>
+
+          <!-- إشعار الهدية المجانية -->
+          <div style="background: rgba(124, 179, 66, 0.12); border: 1px dashed var(--dream-green); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 0.83rem; color: #2e560f; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-gift" style="font-size: 1.1rem; color: var(--dream-green);"></i>
+            <span>يشمل هذا العطر عبوة تستر 5 مل مجاناً لمعاينة الثبات والتركيز!</span>
+          </div>
+
+          <!-- العداد وأزرار الإضافة والشراء الفوري -->
+          <div class="purchase-actions-row">
+            <div class="detail-stepper-box">
+              <button class="detail-step-btn" id="btn-qty-plus">+</button>
+              <input type="text" class="detail-step-input" id="detail-qty-val" value="1" readonly>
+              <button class="detail-step-btn" id="btn-qty-minus">-</button>
+            </div>
+
+            <button class="btn-detail-add-cart" id="btn-add-to-cart">
+              <i class="fa-solid fa-cart-plus"></i> أضف إلى السلة
+            </button>
+
+            <button class="btn-detail-buy-now" id="btn-buy-now-direct">
+              <i class="fa-solid fa-bolt"></i> شراء الآن
+            </button>
+          </div>
+
+          <!-- كود الخصم -->
+          <div style="background: var(--bg-elevated); border: 1.5px dashed var(--dream-green); border-radius: 8px; padding: 12px 16px; margin-bottom: 22px;">
+            <label style="display:block; font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:6px;">
+              <i class="fa-solid fa-ticket" style="color:var(--dream-green);"></i> هل تمتلك كود خصم؟
+            </label>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="prod-coupon-input" placeholder="اكتب كود الخصم (مثال: SEIF10)" style="flex:1; padding:8px 12px; border:1px solid var(--border-color); border-radius:4px; font-size:0.85rem; text-transform:uppercase; outline:none; background:var(--bg-surface); color:var(--text-main);">
+              <button type="button" id="btn-apply-prod-coupon" style="background:var(--dream-green); color:#fff; border:none; padding:0 16px; border-radius:4px; font-weight:800; font-size:0.85rem; cursor:pointer;" onclick="applyProductCoupon()">تطبيق</button>
+            </div>
+            <div id="prod-coupon-msg" style="font-size:0.8rem; font-weight:800; margin-top:6px; display:none;"></div>
+          </div>
+
+          <!-- ضمانات محل سيف للعطور -->
+          <div class="shop-perks-list">
+            <div class="shop-perk-item">
+              <i class="fa-solid fa-vial-circle-check"></i>
+              <span>حق الاختبار مكفول: تجربة التستر المرفق وفحص فوحان العطر أمام المندوب قبل الدفع.</span>
+            </div>
+            <div class="shop-perk-item">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+              <span>الدفع نقداً عند الاستلام كاش بكل أمان وراحة بال.</span>
+            </div>
+            <div class="shop-perk-item">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>ضمان ثبات يتخطى 48 ساعة على الملابس والجلد.</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- النوتات العطرية والمواصفات -->
+      <section class="product-specs-section">
+        <div class="specs-header-tab">المكونات والنوتات العطرية</div>
+        <div class="specs-table-grid" id="specs-table-body">
+          <!-- يتم ملؤها ديناميكياً -->
+        </div>
+      </section>
+
+      <!-- منتجات ذات صلة -->
+      <section class="related-products-section" style="margin-top: 40px; margin-bottom: 50px;">
+        <h2 style="font-size: 1.35rem; font-weight: 900; color: var(--text-main); margin-bottom: 20px; border-right: 4px solid var(--dream-green); padding-right: 12px;">
+          عطور مشابهة قد تعجبك
+        </h2>
+        <div class="dream-products-grid" id="related-products-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;">
+          <!-- يتم ملؤها تلقائياً -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- تذييل المتجر -->
+  <footer class="dream-footer">
+    <div class="footer-bottom-glow"></div>
+    <div class="container">
+      <div class="footer-simple-center">
+        <div class="footer-simple-card">
+          <img src="logo.png" alt="محل سيف للعطور">
+        </div>
+        <div class="footer-simple-brand-text">
+          <h3>متجر سيف للعطور - SEIF PERFUMES</h3>
+          <p>زيوت عطرية أصلية 100% • ثبات عالي • اختبار وتجربة أمام المندوب قبل الدفع</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom-copyright">
+        <div class="container copyright-flex-dream">
+          <div class="footer-copy-right">
+            <span>© 2026 سيف للعطور (SEIF PERFUMES). جميع الحقوق محفوظة.</span>
+          </div>
+
+          <div class="footer-social-mid">
+            <a href="#" target="_blank" title="تيك توك"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="#" target="_blank" title="فيسبوك"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" target="_blank" title="انستجرام"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+
+          <div class="footer-dev-left" dir="ltr">
+            <span class="dev-label-eng">Designed &amp; Developed by</span>
+            <a href="https://wa.me/201101579399" target="_blank" class="dev-eng-highlight" title="Contact Developer on WhatsApp">
+              ENG : Ahmed Mohamed
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- شريط التنقل السفلي للموبايل -->
+  <div class="mobile-bottom-nav">
+    <a href="index.html" class="mob-nav-item">
+      <i class="fa-solid fa-house"></i>
+      <span>الرئيسية</span>
+    </a>
+    <a href="cart.html" class="mob-nav-item mob-cart-link active">
+      <div class="mob-cart-badge-wrap">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <span class="mob-badge" id="mob-cart-counter">0</span>
+      </div>
+      <span>السلة</span>
+    </a>
+    <a href="https://wa.me/201101579399" target="_blank" class="mob-nav-item" style="color: #25d366;">
+      <i class="fa-brands fa-whatsapp"></i>
+      <span>راسلنا</span>
+    </a>
+  </div>
+
+  <!-- زر المحادثة العائم -->
+  <div class="alternating-chat-widget" id="alternating-chat-btn" title="تواصل معنا">
+    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
+      <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
+    </a>
+  </div>
+
+  <!-- شاشة الصيانة الإدارية -->
+  <div class="store-closed-screen" id="store-closed-modal" style="display: none;">
+    <div class="closed-glass-box">
+      <img src="logo.png" alt="سيف للعطور" style="height: 55px; margin: 0 auto;">
+      <h2>جاري تحديث قائمة العطور</h2>
+      <p>نقوم حالياً بإضافة تشكيلة عطرية جديدة وتحديث الأسعار والمخزون.<br>نعود إليكم خلال وقت قصير بإذن الله.</p>
+      <a href="https://wa.me/201101579399" target="_blank" class="btn-send-whatsapp-order" style="margin: 0 auto; max-width: 280px; display:flex; align-items:center; justify-content:center; gap:10px; background:#25d366; color:#fff; padding:14px; border-radius:50px; font-weight:900;">
+        <i class="fa-brands fa-whatsapp"></i> تواصل مع إدارة المتجر مباشرة
+      </a>
+    </div>
+  </div>
+
+  <!-- المحرك البرمجي المربوط بـ Firebase (سيف للعطور) -->
+  <script>
+    'use strict';
+
+    // 1. تهيئة مشروع Firebase لمتجر سيف للعطور
+    const firebaseConfig = {
+      apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS8OE9Q",
+      authDomain: "seif-perfumes.firebaseapp.com",
+      projectId: "seif-perfumes",
+      storageBucket: "seif-perfumes.firebasestorage.app",
+      messagingSenderId: "464823513051",
+      appId: "1:464823513051:web:2ef7412e119dac739981fe",
+      measurementId: "G-NW3VJW5BBH"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let prodId = urlParams.get('id');
+
+    let currentProduct = null;
+    let chosenSize = 50;
+    let currentQty = 1;
+    let activeImages = [];
+    let currentImgIndex = 0;
+    let sliderInterval = null;
+
+    const SIZE_MULTIPLIERS = {
+      30: 0.65,
+      50: 1.00,
+      100: 1.70
+    };
+
+    function fetchLiveProductDetails() {
+      if (!prodId) {
+        db.collection('perfumes').limit(1).get().then(snapshot => {
+          if (!snapshot.empty) {
+            const doc = snapshot.docs[0];
+            prodId = doc.id;
+            listenToProduct(prodId);
+          }
+        });
+        return;
+      }
+      listenToProduct(prodId);
+    }
+
+    function listenToProduct(id) {
+      db.collection('perfumes').doc(id).onSnapshot((doc) => {
+        if (doc.exists) {
+          currentProduct = { id: doc.id, ...doc.data() };
+          renderCurrentProduct(currentProduct);
+        } else {
+          document.getElementById('detail-title').textContent = "العطر غير متاح أو تم رفعه من المتجر.";
+        }
+      }, (err) => {
+        console.error("خطأ قراءة البيانات:", err);
+      });
+    }
+
+    function calculateSizePrice(basePrice, size) {
+      if (currentProduct && currentProduct.sizes && currentProduct.sizes[size]) {
+        return Number(currentProduct.sizes[size]);
+      }
+      return Math.round((Number(basePrice) * (SIZE_MULTIPLIERS[size] || 1)) / 10) * 10;
+    }
+
+    function getExactStockForSize(size) {
+      if (!currentProduct) return 0;
+      if (currentProduct.stocks && currentProduct.stocks[size] !== undefined) {
+        return Number(currentProduct.stocks[size]);
+      }
+      return currentProduct.stock !== undefined ? Number(currentProduct.stock) : 15;
+    }
+
+    window.selectPerfumeSize = function(size, el) {
+      chosenSize = Number(size);
+      document.querySelectorAll('.size-swatch-badge').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      const nameEl = document.getElementById('selected-size-name');
+      if (nameEl) nameEl.textContent = `${chosenSize} مل`;
+
+      updatePriceUI();
+    };
+
+    function updatePriceUI() {
+      if (!currentProduct) return;
+      const base = Number(currentProduct.price || 300);
+      const calculated = calculateSizePrice(base, chosenSize);
+      const currentStock = getExactStockForSize(chosenSize);
+
+      let finalPrice = calculated;
+      if (productAppliedDiscountPercent > 0) {
+        finalPrice = calculated * (1 - (productAppliedDiscountPercent / 100));
+      }
+
+      const priceEl = document.getElementById('detail-price');
+      const oldPriceEl = document.getElementById('detail-old-price');
+      const stockText = document.getElementById('stock-status-text');
+
+      if (priceEl) priceEl.textContent = `${finalPrice.toFixed(0)} ج`;
+
+      if (oldPriceEl) {
+        if (productAppliedDiscountPercent > 0 || currentProduct.oldPrice > calculated) {
+          oldPriceEl.textContent = `${calculated} ج`;
+          oldPriceEl.style.display = 'inline';
+        } else {
+          oldPriceEl.style.display = 'none';
+        }
+      }
+
+      if (stockText) {
+        if (currentStock <= 0) {
+          stockText.textContent = "نفدت الكمية لهذا الحجم ❌";
+          stockText.style.color = "var(--discount-red)";
+        } else {
+          stockText.textContent = `متوفر بالمخزن (${currentStock} زجاجة) - جاهز للشحن`;
+          stockText.style.color = "var(--text-muted)";
+        }
+      }
+    }
+
+    function renderCurrentProduct(prod) {
+      document.title = `${prod.name || prod.title} | سيف للعطور`;
+
+      const crumbCat = document.getElementById('crumb-cat-name');
+      if (crumbCat) crumbCat.textContent = prod.category === 'men' ? 'عطور رجالي' : prod.category === 'women' ? 'عطور نسائي' : 'عطور للجنسين';
+
+      const crumbTitle = document.getElementById('crumb-prod-title');
+      if (crumbTitle) crumbTitle.textContent = prod.name || prod.title;
+
+      const detailTitle = document.getElementById('detail-title');
+      if (detailTitle) detailTitle.textContent = prod.name || prod.title;
+
+      updatePriceUI();
+
+      const starsBox = document.getElementById('detail-stars-box');
+      if (starsBox) {
+        let starsHtml = '';
+        const rate = Math.round(Number(prod.rating) || 5);
+        for (let i = 1; i <= 5; i++) {
+          starsHtml += (i <= rate)
+            ? '<i class="fa-solid fa-star"></i>'
+            : '<i class="fa-regular fa-star" style="color:#d1d5db;"></i>';
+        }
+        starsBox.innerHTML = starsHtml;
+      }
+
+      const reviewsEl = document.getElementById('detail-reviews-num');
+      if (reviewsEl) reviewsEl.textContent = `(${prod.ratingCount || 12} تقييم مشتري)`;
+
+      renderSpecsTable(prod.notes || prod.desc);
+      renderRelatedItems(prod);
+      setupImageSlider(prod);
+    }
+
+    function setupImageSlider(prod) {
+      if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
+        activeImages = prod.images.filter(Boolean);
+      } else if (prod.image) {
+        activeImages = [prod.image];
+      } else {
+        activeImages = ['image/S1.png'];
+      }
+
+      currentImgIndex = 0;
+      updateSliderUI();
+
+      const dotsBox = document.getElementById('gallery-dots-box');
+      if (dotsBox) {
+        dotsBox.innerHTML = activeImages.map((_, idx) => `
+          <span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></span>
+        `).join('');
+      }
+
+      startAutoSlide();
+    }
+
+    function updateSliderUI() {
+      const imgEl = document.getElementById('detail-img');
+      if (imgEl && activeImages[currentImgIndex]) {
+        imgEl.style.opacity = '0.35';
+        setTimeout(() => {
+          imgEl.src = activeImages[currentImgIndex];
+          imgEl.style.opacity = '1';
+        }, 120);
+      }
+      document.querySelectorAll('.gallery-dot').forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentImgIndex);
+      });
+    }
+
+    function nextSlide() {
+      currentImgIndex = (currentImgIndex + 1) % activeImages.length;
+      updateSliderUI();
+    }
+
+    function startAutoSlide() {
+      if (sliderInterval) clearInterval(sliderInterval);
+      sliderInterval = setInterval(nextSlide, 3000);
+    }
+
+    document.getElementById('slider-next-btn')?.addEventListener('click', nextSlide);
+    document.getElementById('slider-prev-btn')?.addEventListener('click', () => {
+      currentImgIndex = (currentImgIndex - 1 + activeImages.length) % activeImages.length;
+      updateSliderUI();
+    });
+
+    function renderSpecsTable(notes) {
+      const specsContainer = document.getElementById('specs-table-body');
+      if (!specsContainer) return;
+
+      specsContainer.innerHTML = `
+        <div class="spec-table-row">
+          <strong style="width: 140px; color: var(--text-muted);">التوليفة العطرية:</strong>
+          <span style="flex: 1; color: var(--text-main); font-weight: 700;">${notes || "عطر فاخر محاكاة دقيقة للنسخة الأصلية برائحة ثابتة ومركزة."}</span>
+        </div>
+        <div class="spec-table-row">
+          <strong style="width: 140px; color: var(--text-muted);">نسبة التركيز:</strong>
+          <span style="flex: 1; color: var(--text-main); font-weight: 700;">Eau de Parfum (مركز جداً)</span>
+        </div>
+        <div class="spec-table-row">
+          <strong style="width: 140px; color: var(--text-muted);">الهدية المرفقة:</strong>
+          <span style="flex: 1; color: var(--dream-green); font-weight: 800;">تستر 5 مل مجاني مع كل زجاجة</span>
+        </div>
+      `;
+    }
+
+    async function renderRelatedItems(activeItem) {
+      const container = document.getElementById('related-products-container');
+      if (!container) return;
+
+      try {
+        const snap = await db.collection('perfumes').limit(5).get();
+        const related = [];
+        snap.forEach(d => {
+          if (d.id !== activeItem.id) related.push({ id: d.id, ...d.data() });
+        });
+
+        container.innerHTML = related.slice(0, 4).map(item => `
+          <article class="dream-product-card" onclick="window.location.href='product.html?id=${item.id}'" style="cursor: pointer; padding: 14px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px;">
+            <div class="card-image-pane" style="width: 100%; display: flex; justify-content: center; margin-bottom: 10px;">
+              <img src="${item.image || 'image/S1.png'}" alt="${item.name}" style="height: 140px; object-fit: contain;">
+            </div>
+            <div class="card-details-pane" style="text-align: center;">
+              <h4 style="font-size: 0.85rem; font-weight: 800; color: var(--text-main); height: 36px; overflow: hidden; line-height: 1.3; margin: 4px 0 8px;">${item.name}</h4>
+              <div class="price-block-dream" style="justify-content: center; margin-bottom: 10px;">
+                <span class="price-val-red" style="font-size: 1.1rem; font-weight: 900; color: var(--discount-red);">${Number(item.price || 300)} ج</span>
+              </div>
+              <button class="btn-choose-option-green" style="width: 100%; height: 34px; font-size: 0.82rem; font-weight: 800;">معاينة العطر</button>
+            </div>
+          </article>
+        `).join('');
+      } catch (e) {}
+    }
+
+    const qtyInput = document.getElementById('detail-qty-val');
+    document.getElementById('btn-qty-plus')?.addEventListener('click', () => {
+      const maxStock = getExactStockForSize(chosenSize);
+      if (currentQty < maxStock) {
+        currentQty++;
+        if (qtyInput) qtyInput.value = currentQty;
+      } else {
+        alert(`المتاح بالمخزن من حجم (${chosenSize} مل) هو ${maxStock} زجاجات فقط!`);
+      }
+    });
+
+    document.getElementById('btn-qty-minus')?.addEventListener('click', () => {
+      if (currentQty > 1) {
+        currentQty--;
+        if (qtyInput) qtyInput.value = currentQty;
+      }
+    });
+
+    function syncCartCounter() {
+      const cart = JSON.parse(localStorage.getItem('seif_cart')) || [];
+      const count = cart.reduce((acc, i) => acc + (Number(i.quantity) || 1), 0);
+      const cartEl = document.getElementById('cart-counter');
+      const mobCartEl = document.getElementById('mob-cart-counter');
+      if (cartEl) cartEl.textContent = count;
+      if (mobCartEl) mobCartEl.textContent = count;
+    }
+
+    let productAppliedDiscountPercent = 0;
+    let productAppliedCouponCode = '';
+
+    window.applyProductCoupon = async function() {
+      const input = document.getElementById('prod-coupon-input');
+      const msg = document.getElementById('prod-coupon-msg');
+      const code = input ? input.value.trim().toUpperCase() : '';
+
+      if (!code) return;
+
+      try {
+        const snap = await db.collection('coupons').doc(code).get();
+        if (snap.exists && snap.data().active) {
+          const data = snap.data();
+          productAppliedDiscountPercent = Number(data.value || 10);
+          productAppliedCouponCode = code;
+
+          msg.style.display = 'block';
+          msg.style.color = 'var(--dream-green)';
+          msg.textContent = `✅ تم تطبيق خصم (${productAppliedDiscountPercent}%) بنجاح!`;
+          updatePriceUI();
+        } else {
+          msg.style.display = 'block';
+          msg.style.color = 'var(--discount-red)';
+          msg.textContent = '❌ كود الخصم غير صالح أو منتهي!';
+        }
+      } catch (err) {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--discount-red)';
+        msg.textContent = '❌ تعذر التحقق من كود الخصم!';
+      }
+    };
+
+    function addProductToCart(quantity) {
+      const maxStock = getExactStockForSize(chosenSize);
+      if (maxStock <= 0) {
+        alert("عذراً، هذا الحجم غير متوفر حالياً بالمخزن!");
+        return;
+      }
+
+      let cart = JSON.parse(localStorage.getItem('seif_cart')) || [];
+      const existing = cart.find(i => String(i.id) === String(currentProduct.id) && Number(i.size) === chosenSize);
+
+      const unitPrice = calculateSizePrice(currentProduct.price, chosenSize);
+      const finalPrice = productAppliedDiscountPercent > 0 ? unitPrice * (1 - (productAppliedDiscountPercent / 100)) : unitPrice;
+
+      if (existing) {
+        existing.quantity = Math.min(existing.quantity + quantity, maxStock);
+      } else {
+        cart.push({
+          id: currentProduct.id,
+          name: currentProduct.name,
+          size: chosenSize,
+          price: finalPrice,
+          image: currentProduct.image || 'image/S1.png',
+          quantity: quantity
+        });
+      }
+
+      localStorage.setItem('seif_cart', JSON.stringify(cart));
+      syncCartCounter();
+      alert(`✅ تمت إضافة (${quantity}) زجاجة بحجم (${chosenSize} مل) إلى سلتك بنجاح!`);
+    }
+
+    document.getElementById('btn-add-to-cart')?.addEventListener('click', () => {
+      if (currentProduct) addProductToCart(currentQty);
+    });
+
+    document.getElementById('btn-buy-now-direct')?.addEventListener('click', () => {
+      if (currentProduct) {
+        addProductToCart(currentQty);
+        window.location.href = 'cart.html';
+      }
+    });
+
+    // الداكن والتواصل
+    const darkCheckbox = document.getElementById('dark-mode-checkbox');
+    if (localStorage.getItem('seif_perfumes_theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+      if (darkCheckbox) darkCheckbox.checked = true;
+    }
+    darkCheckbox?.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('seif_perfumes_theme', 'light');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchLiveProductDetails();
+      syncCartCounter();
+    });
+  </script>
+</body>
+</html>
