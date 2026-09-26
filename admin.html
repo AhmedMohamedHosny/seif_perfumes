@@ -535,64 +535,90 @@ input, select, textarea {
     <span>⭐ تمييز كـ "الأكثر مبيعاً"</span>
   </label>
 </div>
-            <div class="form-group">
-              <label>السعر الحالي (EGP) *</label>
-              <input type="number" id="pPrice" placeholder="1290" required>
-            </div>
-            <div class="form-group">
-              <label>السعر قبل الخصم (اختياري - يظهر مشطوباً)</label>
-              <input type="number" id="pOldPrice" placeholder="1600">
-            </div>
-            <input type="hidden" id="pEditId" value="">
+<input type="hidden" id="pEditId" value="">
 
-            <div class="form-group" style="grid-column: 1 / -1; background: rgba(18,56,46,0.65); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin: 6px 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-                <label style="color: var(--gold); font-size: 12px; font-weight: 800; margin: 0;">
-                  💎 تسعير وتحديد عدد الزجاجات لكل حجم
+            <div class="form-group" style="grid-column: 1 / -1; background: rgba(18,56,46,0.65); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin: 6px 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+                <label style="color: var(--gold); font-size: 13px; font-weight: 800; margin: 0;">
+                  💎 تسعير ومخزون العبوات (10 مل، 30 مل، 50 مل، 100 مل)
                 </label>
                 <span id="totalStockPreview" style="font-size: 11px; color: var(--success); font-weight: 800;">إجمالي المخزون: 0 زجاجة</span>
               </div>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 10px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
 
-                <div style="background: rgba(7,25,20,0.8); border: 1px solid var(--line); border-radius: 6px; padding: 8px; min-width: 0;">
-                  <strong style="color: var(--gold); font-size: 11px; display: block; margin-bottom: 6px;">🧴 30 مل</strong>
-                  <div style="display: flex; gap: 6px;">
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">السعر:</label>
-                      <input type="number" id="pSize30" placeholder="850" min="0" required style="padding: 6px; font-size: 11px;">
+                <!-- 10 مل -->
+                <div style="background: rgba(7,25,20,0.85); border: 1px solid var(--line); border-radius: 6px; padding: 10px;">
+                  <strong style="color: var(--gold); font-size: 12px; display: block; margin-bottom: 8px;">🧪 عبوة 10 مل</strong>
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر الحالي *:</label>
+                      <input type="number" id="pSize10" placeholder="150" min="0" style="padding: 5px; font-size: 11px;">
                     </div>
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">العدد:</label>
-                      <input type="number" id="pStock30" class="stock-input-calc" placeholder="15" min="0" value="15" required style="padding: 6px; font-size: 11px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر قبل الخصم (مشطوب):</label>
+                      <input type="number" id="pOldPrice10" placeholder="200" min="0" style="padding: 5px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px;">العدد المتاح بالمخزن:</label>
+                      <input type="number" id="pStock10" class="stock-input-calc" placeholder="10" min="0" value="10" style="padding: 5px; font-size: 11px;">
                     </div>
                   </div>
                 </div>
 
-                <div style="background: rgba(7,25,20,0.8); border: 1px solid var(--line); border-radius: 6px; padding: 8px; min-width: 0;">
-                  <strong style="color: var(--gold); font-size: 11px; display: block; margin-bottom: 6px;">✨ 50 مل (أساسي)</strong>
-                  <div style="display: flex; gap: 6px;">
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">السعر:</label>
-                      <input type="number" id="pSize50" placeholder="1290" min="0" required style="padding: 6px; font-size: 11px;">
+                <!-- 30 مل -->
+                <div style="background: rgba(7,25,20,0.85); border: 1px solid var(--line); border-radius: 6px; padding: 10px;">
+                  <strong style="color: var(--gold); font-size: 12px; display: block; margin-bottom: 8px;">🧴 عبوة 30 مل</strong>
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر الحالي *:</label>
+                      <input type="number" id="pSize30" placeholder="300" min="0" required style="padding: 5px; font-size: 11px;">
                     </div>
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">العدد:</label>
-                      <input type="number" id="pStock50" class="stock-input-calc" placeholder="15" min="0" value="15" required style="padding: 6px; font-size: 11px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر قبل الخصم (مشطوب):</label>
+                      <input type="number" id="pOldPrice30" placeholder="400" min="0" style="padding: 5px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px;">العدد المتاح بالمخزن:</label>
+                      <input type="number" id="pStock30" class="stock-input-calc" placeholder="15" min="0" value="15" style="padding: 5px; font-size: 11px;">
                     </div>
                   </div>
                 </div>
 
-                <div style="background: rgba(7,25,20,0.8); border: 1px solid var(--line); border-radius: 6px; padding: 8px; min-width: 0;">
-                  <strong style="color: var(--gold); font-size: 11px; display: block; margin-bottom: 6px;">👑 100 مل</strong>
-                  <div style="display: flex; gap: 6px;">
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">السعر:</label>
-                      <input type="number" id="pSize100" placeholder="2190" min="0" required style="padding: 6px; font-size: 11px;">
+                <!-- 50 مل -->
+                <div style="background: rgba(7,25,20,0.85); border: 1px solid var(--line); border-radius: 6px; padding: 10px;">
+                  <strong style="color: var(--gold); font-size: 12px; display: block; margin-bottom: 8px;">✨ عبوة 50 مل (أساسي)</strong>
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر الحالي *:</label>
+                      <input type="number" id="pSize50" placeholder="450" min="0" required style="padding: 5px; font-size: 11px;">
                     </div>
-                    <div style="flex: 1; min-width: 0;">
-                      <label style="font-size: 9px; display: block;">العدد:</label>
-                      <input type="number" id="pStock100" class="stock-input-calc" placeholder="5" min="0" value="5" required style="padding: 6px; font-size: 11px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر قبل الخصم (مشطوب):</label>
+                      <input type="number" id="pOldPrice50" placeholder="600" min="0" style="padding: 5px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px;">العدد المتاح بالمخزن:</label>
+                      <input type="number" id="pStock50" class="stock-input-calc" placeholder="15" min="0" value="15" style="padding: 5px; font-size: 11px;">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 100 مل -->
+                <div style="background: rgba(7,25,20,0.85); border: 1px solid var(--line); border-radius: 6px; padding: 10px;">
+                  <strong style="color: var(--gold); font-size: 12px; display: block; margin-bottom: 8px;">👑 عبوة 100 مل</strong>
+                  <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div>
+                      <label style="font-size: 10px;">السعر الحالي *:</label>
+                      <input type="number" id="pSize100" placeholder="800" min="0" required style="padding: 5px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px;">السعر قبل الخصم (مشطوب):</label>
+                      <input type="number" id="pOldPrice100" placeholder="1000" min="0" style="padding: 5px; font-size: 11px;">
+                    </div>
+                    <div>
+                      <label style="font-size: 10px;">العدد المتاح بالمخزن:</label>
+                      <input type="number" id="pStock100" class="stock-input-calc" placeholder="5" min="0" value="5" style="padding: 5px; font-size: 11px;">
                     </div>
                   </div>
                 </div>
@@ -1181,10 +1207,11 @@ document.getElementById("pFileInput")?.addEventListener("change", async (e) => {
     });
 
 function calcTotalStockPreview() {
+      const s10 = Number(document.getElementById("pStock10")?.value || 0);
       const s30 = Number(document.getElementById("pStock30")?.value || 0);
       const s50 = Number(document.getElementById("pStock50")?.value || 0);
       const s100 = Number(document.getElementById("pStock100")?.value || 0);
-      const total = s30 + s50 + s100;
+      const total = s10 + s30 + s50 + s100;
       const preview = document.getElementById("totalStockPreview");
       if (preview) preview.textContent = `إجمالي المخزون: ${total} زجاجة`;
     }
@@ -1312,23 +1339,29 @@ window.toggleBestseller = async function(id) {
       }
     };
 
-    window.startEditPerfume = function(id) {
+window.startEditPerfume = function(id) {
       const p = allPerfumes.find(x => x.id === id);
       if (!p) return;
 
       document.getElementById("pEditId").value = p.id;
       document.getElementById("pName").value = p.name || "";
       document.getElementById("pCategory").value = p.category || "men";
-      document.getElementById("pPrice").value = p.price || "";
-      document.getElementById("pOldPrice").value = p.oldPrice || "";
       document.getElementById("pDesc").value = p.desc || p.notes || "";
-document.getElementById("pBestseller").checked = !!p.bestseller;
-const base = Number(p.price || 0);
+      document.getElementById("pBestseller").checked = !!p.bestseller;
+
+      const base = Number(p.price || 300);
+      document.getElementById("pSize10").value = p.sizes?.[10] ?? Math.round((base * 0.35) / 10) * 10;
       document.getElementById("pSize30").value = p.sizes?.[30] ?? Math.round((base * 0.65) / 10) * 10;
       document.getElementById("pSize50").value = p.sizes?.[50] ?? base;
       document.getElementById("pSize100").value = p.sizes?.[100] ?? Math.round((base * 1.7) / 10) * 10;
 
-      const stocks = p.stocks || { 30: 15, 50: 15, 100: 5 };
+      document.getElementById("pOldPrice10").value = p.oldPrices?.[10] || "";
+      document.getElementById("pOldPrice30").value = p.oldPrices?.[30] || "";
+      document.getElementById("pOldPrice50").value = p.oldPrices?.[50] || p.oldPrice || "";
+      document.getElementById("pOldPrice100").value = p.oldPrices?.[100] || "";
+
+      const stocks = p.stocks || { 10: 10, 30: 15, 50: 15, 100: 5 };
+      document.getElementById("pStock10").value = stocks[10] ?? 10;
       document.getElementById("pStock30").value = stocks[30] ?? 15;
       document.getElementById("pStock50").value = stocks[50] ?? 15;
       document.getElementById("pStock100").value = stocks[100] ?? 5;
@@ -1378,38 +1411,52 @@ const base = Number(p.price || 0);
       }
 
       try {
-        const editId = document.getElementById("pEditId").value;
-        const basePrice = Number(document.getElementById("pPrice").value);
+const editId = document.getElementById("pEditId").value;
 
-        const size30 = Number(document.getElementById("pSize30")?.value) || Math.round((basePrice * 0.65) / 10) * 10;
-        const size50 = Number(document.getElementById("pSize50")?.value) || basePrice;
-        const size100 = Number(document.getElementById("pSize100")?.value) || Math.round((basePrice * 1.7) / 10) * 10;
+        const size10 = Number(document.getElementById("pSize10")?.value) || 0;
+        const size30 = Number(document.getElementById("pSize30")?.value) || 0;
+        const size50 = Number(document.getElementById("pSize50")?.value) || size30 || size10;
+        const size100 = Number(document.getElementById("pSize100")?.value) || 0;
 
+        const oldPrice10 = Number(document.getElementById("pOldPrice10")?.value) || null;
+        const oldPrice30 = Number(document.getElementById("pOldPrice30")?.value) || null;
+        const oldPrice50 = Number(document.getElementById("pOldPrice50")?.value) || null;
+        const oldPrice100 = Number(document.getElementById("pOldPrice100")?.value) || null;
+
+        const stock10 = Number(document.getElementById("pStock10")?.value) || 0;
         const stock30 = Number(document.getElementById("pStock30")?.value) || 0;
         const stock50 = Number(document.getElementById("pStock50")?.value) || 0;
         const stock100 = Number(document.getElementById("pStock100")?.value) || 0;
-        const totalStock = stock30 + stock50 + stock100;
+        const totalStock = stock10 + stock30 + stock50 + stock100;
 
         const descVal = document.getElementById("pDesc").value.trim();
 
         const perfumeData = {
           name: document.getElementById("pName").value.trim(),
           category: document.getElementById("pCategory").value,
-          price: basePrice,
+          price: size50, // السعر الأساسي للرجوع له
+          oldPrice: oldPrice50,
           bestseller: document.getElementById("pBestseller").checked,
-          oldPrice: document.getElementById("pOldPrice").value ? Number(document.getElementById("pOldPrice").value) : null,
           stock: totalStock,
           stocks: {
+            10: stock10,
             30: stock30,
             50: stock50,
             100: stock100
           },
           sizes: {
+            10: size10,
             30: size30,
             50: size50,
             100: size100
           },
-          notes: descVal || 'توليفة عطرية مركزة وثابتة تدوم طويلاً',
+          oldPrices: {
+            10: oldPrice10,
+            30: oldPrice30,
+            50: oldPrice50,
+            100: oldPrice100
+          },
+          notes: descVal,
           desc: descVal
         };
 
