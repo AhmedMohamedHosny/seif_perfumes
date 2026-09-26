@@ -324,8 +324,9 @@
     <button class="toast-close-btn" onclick="this.parentElement.classList.remove('show')">&times;</button>
   </div>
 
-  <!-- اختصارات المشرف -->
+<!-- اختصارات المشرف الذكية للموبايل والكمبيوتر -->
   <script>
+    // 1. اختصار الكيبورد للكمبيوتر
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'ش')) {
         e.preventDefault();
@@ -333,23 +334,64 @@
       }
     });
 
+    const logoLink = document.getElementById('main-logo-link');
     const logoImg = document.getElementById('main-store-logo');
-    let pressTimer = null;
 
-    if (logoImg) {
-      const startHold = () => {
+    if (logoImg && logoLink) {
+      // منع ظهور قائمة حفظ الصورة في الموبايل نهائياً
+      logoImg.style.userSelect = 'none';
+      logoImg.style.webkitUserSelect = 'none';
+      logoImg.style.webkitTouchCallout = 'none';
+      logoImg.setAttribute('draggable', 'false');
+
+      logoLink.addEventListener('contextmenu', (e) => e.preventDefault());
+      logoImg.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      let pressTimer = null;
+      let isLongPressTriggered = false;
+      let tapCount = 0;
+      let tapTimer = null;
+
+      // أ) طريقة الدوسة المطولة (ثانيتان فقط مع اهتزاز الفون للتنبيه)
+      const startHold = (e) => {
+        isLongPressTriggered = false;
         pressTimer = setTimeout(() => {
+          isLongPressTriggered = true;
+          if (navigator.vibrate) navigator.vibrate(120); // اهتزاز خفيف لتأكيد الدخول
           window.location.href = 'admin.html';
-        }, 3000);
+        }, 2000);
       };
 
-      const cancelHold = () => { if (pressTimer) clearTimeout(pressTimer); };
+      const cancelHold = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+      };
 
-      logoImg.addEventListener('mousedown', startHold);
-      logoImg.addEventListener('touchstart', startHold);
-      logoImg.addEventListener('mouseup', cancelHold);
-      logoImg.addEventListener('mouseleave', cancelHold);
-      logoImg.addEventListener('touchend', cancelHold);
+      logoLink.addEventListener('touchstart', startHold, { passive: true });
+      logoLink.addEventListener('touchend', cancelHold);
+      logoLink.addEventListener('touchcancel', cancelHold);
+      logoLink.addEventListener('mousedown', startHold);
+      logoLink.addEventListener('mouseup', cancelHold);
+      logoLink.addEventListener('mouseleave', cancelHold);
+
+      // منع فتح الصفحة الرئيسية إذا كانت الدوسة مطولة
+      logoLink.addEventListener('click', (e) => {
+        if (isLongPressTriggered) {
+          e.preventDefault();
+          return;
+        }
+
+        // ب) طريقة احتياطية فائقة السهولة للموبايل: (3 نقرات متتالية سريعة على اللوجو)
+        tapCount++;
+        clearTimeout(tapTimer);
+        if (tapCount >= 3) {
+          e.preventDefault();
+          tapCount = 0;
+          if (navigator.vibrate) navigator.vibrate([60, 60, 60]);
+          window.location.href = 'admin.html';
+          return;
+        }
+        tapTimer = setTimeout(() => { tapCount = 0; }, 500);
+      });
     }
   </script>
 
