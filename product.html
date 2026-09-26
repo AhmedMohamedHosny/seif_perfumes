@@ -542,9 +542,9 @@
   <header class="dream-header">
     <div class="container header-inner">
       <!-- شعار محل سيف للعطور -->
-      <a href="index.html" class="dream-brand">
-        <img src="logo.png" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo">
-      </a>
+<a href="index.html" class="dream-brand">
+  <img src="logo.jpg" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo" style="height: 48px; object-fit: contain;">
+</a>
 
       <!-- حقل البحث السريع المباشر -->
       <form class="dream-search-bar" action="index.html" method="GET">
@@ -619,24 +619,6 @@
           <span class="overview-brand-tag" id="detail-brand">سيف للعطور ✦</span>
           <h1 class="overview-title" id="detail-title">جاري تحميل بيانات العطر...</h1>
 
-          <div class="overview-stars-strip" style="flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span id="detail-stars-box"></span>
-              <span id="detail-reviews-num">(0 تقييم مشتري)</span>
-            </div>
-            <!-- تقييم الزائر التفاعلي -->
-            <div style="display: flex; align-items: center; gap: 6px; border-right: 2px solid var(--border-color); padding-right: 12px;">
-              <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-main);">قيّم هذا العطر:</span>
-              <div class="interactive-stars-wrap" id="user-star-picker">
-                <span class="star-item" data-val="5">★</span>
-                <span class="star-item" data-val="4">★</span>
-                <span class="star-item" data-val="3">★</span>
-                <span class="star-item" data-val="2">★</span>
-                <span class="star-item" data-val="1">★</span>
-              </div>
-              <small id="rating-feedback" style="color: var(--dream-green); font-weight: 800; font-size: 0.75rem; display: none;">شكراً لتقييمك!</small>
-            </div>
-          </div>
 
           <div class="overview-pricing-panel">
             <span class="overview-price-red" id="detail-price">0.00 ج</span>
@@ -654,7 +636,10 @@
               <span>الحجم المختار:</span>
               <span id="selected-size-name">50 مل (الحجم القياسي)</span>
             </div>
-            <div class="size-options-row" id="size-options-container">
+<div class="size-options-row" id="size-options-container">
+              <div class="size-swatch-badge" onclick="selectPerfumeSize(10, this)">
+                <i class="fa-solid fa-vial"></i> 10 مل
+              </div>
               <div class="size-swatch-badge" onclick="selectPerfumeSize(30, this)">
                 <i class="fa-solid fa-flask"></i> 30 مل
               </div>
@@ -667,11 +652,7 @@
             </div>
           </div>
 
-          <!-- إشعار الهدية المجانية -->
-          <div style="background: rgba(124, 179, 66, 0.12); border: 1px dashed var(--dream-green); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; font-size: 0.83rem; color: #2e560f; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-gift" style="font-size: 1.1rem; color: var(--dream-green);"></i>
-            <span>يشمل هذا العطر عبوة تستر 5 مل مجاناً لمعاينة الثبات والتركيز!</span>
-          </div>
+
 
           <!-- العداد وأزرار الإضافة والشراء الفوري -->
           <div class="purchase-actions-row">
@@ -721,12 +702,10 @@
         </div>
       </section>
 
-      <!-- النوتات العطرية والمواصفات -->
+<!-- تفاصيل العطر المدخلة من المشرف -->
       <section class="product-specs-section">
-        <div class="specs-header-tab">المكونات والنوتات العطرية</div>
-        <div class="specs-table-grid" id="specs-table-body">
-          <!-- يتم ملؤها ديناميكياً -->
-        </div>
+        <div class="specs-header-tab">تفاصيل العطر</div>
+        <div id="specs-table-body" style="font-size: 0.95rem; line-height: 1.8; color: var(--text-main); font-weight: 600; padding: 10px 0;"></div>
       </section>
 
       <!-- منتجات ذات صلة -->
@@ -835,7 +814,7 @@
 
     // 1. تهيئة مشروع Firebase لمتجر سيف للعطور
     const firebaseConfig = {
-apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS80E9Q",
+apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
       authDomain: "seif-perfumes.firebaseapp.com",
       projectId: "seif-perfumes",
       storageBucket: "seif-perfumes.firebasestorage.app",
@@ -1039,24 +1018,10 @@ apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS80E9Q",
       updateSliderUI();
     });
 
-    function renderSpecsTable(notes) {
+function renderSpecsTable(notes) {
       const specsContainer = document.getElementById('specs-table-body');
       if (!specsContainer) return;
-
-      specsContainer.innerHTML = `
-        <div class="spec-table-row">
-          <strong style="width: 140px; color: var(--text-muted);">التوليفة العطرية:</strong>
-          <span style="flex: 1; color: var(--text-main); font-weight: 700;">${notes || "عطر فاخر محاكاة دقيقة للنسخة الأصلية برائحة ثابتة ومركزة."}</span>
-        </div>
-        <div class="spec-table-row">
-          <strong style="width: 140px; color: var(--text-muted);">نسبة التركيز:</strong>
-          <span style="flex: 1; color: var(--text-main); font-weight: 700;">Eau de Parfum (مركز جداً)</span>
-        </div>
-        <div class="spec-table-row">
-          <strong style="width: 140px; color: var(--text-muted);">الهدية المرفقة:</strong>
-          <span style="flex: 1; color: var(--dream-green); font-weight: 800;">تستر 5 مل مجاني مع كل زجاجة</span>
-        </div>
-      `;
+      specsContainer.textContent = notes || "لا توجد تفاصيل إضافية مسجلة لهذا العطر.";
     }
 
     async function renderRelatedItems(activeItem) {
