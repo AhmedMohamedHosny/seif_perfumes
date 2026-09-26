@@ -1040,26 +1040,23 @@ input, select, textarea {
 
   </main>
 
-  <!-- نافذة مظهر وحالة المتجر -->
+<!-- نافذة حالة فتح وإغلاق المتجر -->
   <div class="modal-overlay" id="themeModal">
-    <div class="theme-modal-box">
+    <div class="theme-modal-box" style="max-width: 480px;">
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line); padding-bottom:12px; margin-bottom:18px;">
-        <h3 style="color:var(--gold); font-size:16px;">🎨 مظهر وحالة المتجر للعملاء</h3>
+        <h3 style="color:var(--gold); font-size:16px;">🔒 حالة تشغيل وإغلاق المتجر</h3>
         <button type="button" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;" onclick="document.getElementById('themeModal').classList.remove('open')">&times;</button>
       </div>
 
-      <div class="store-toggle-box" id="storeToggleContainer">
+      <div class="store-toggle-box" id="storeToggleContainer" style="margin-bottom: 20px;">
         <div>
           <strong id="storeStatusLabel" style="font-size:13px; color:#fff;">حالة المتجر: يعمل ويستقبل الزوار</strong>
-          <p style="font-size:10.5px; color:var(--text-muted); margin-top:3px;">عند التفعيل، يُغلق المتجر وتظهر شاشة الصيانة فوراً لكل الزوار.</p>
+          <p style="font-size:11px; color:var(--text-muted); margin-top:4px; line-height: 1.5;">عند تفعيل القفل، يُغلق المتجر فوراً وتظهر شاشة الصيانة والجرد لجميع الزوار.</p>
         </div>
         <input type="checkbox" id="closeStoreCheckbox" class="switch-ui">
       </div>
 
-      <label style="font-size:12px; color:var(--gold); font-weight:800; display:block; margin-bottom:4px;">اختر هوية وألوان لوحة التحكم (تُحفظ فقط، لا تُطبَّق على تصميم المتجر بعد):</label>
-      <div class="themes-palette-grid" id="themesContainer"></div>
-
-      <button type="button" class="btn-submit" id="saveThemeAndStatusBtn" style="width:100%; margin-top:10px;">حفظ وتطبيق حالة المتجر الآن 🚀</button>
+      <button type="button" class="btn-submit" id="saveThemeAndStatusBtn" style="width:100%;">حفظ وتحديث حالة المتجر الآن 💾</button>
     </div>
   </div>
   <!-- نافذة عرض الفاتورة -->
@@ -1102,32 +1099,7 @@ input, select, textarea {
     const settingsDoc = doc(db, "settings", "storeConfig");
     const couponsCol = collection(db, "coupons");
 
-    const STORE_THEMES = [
-      { id: "emerald", name: "الزمردي الفاتح (الأصلي)", gradient: "linear-gradient(135deg, #103d30, #e2c07d)" },      
-      { id: "obsidian", name: "الأسود الفاخر والذهب", gradient: "linear-gradient(135deg, #0a0a0a, #dfb743)" },
-      { id: "royal-navy", name: "الكحلي والشمبانيا", gradient: "linear-gradient(135deg, #060d1a, #e5c158)" },
-      { id: "velvet-burgundy", name: "البرغندي المخملي وعود", gradient: "linear-gradient(135deg, #1f080f, #e6be65)" },
-      { id: "imperial-purple", name: "البنفسجي الإمبراطوري", gradient: "linear-gradient(135deg, #150921, #f3cc68)" },
-      { id: "sapphire-mist", name: "الياقوت الأزرق المتدرج", gradient: "linear-gradient(135deg, #07121b, #64b5f6)" },
-      { id: "forest-bronze", name: "الأخضر الزيتوني والبرونز", gradient: "linear-gradient(135deg, #11160d, #cd7f32)" },
-      { id: "charcoal-copper", name: "الفحم الدخاني والنحاس", gradient: "linear-gradient(135deg, #141416, #d97443)" },
-      { id: "deep-maroon", name: "العنابي الداكن والذهب", gradient: "linear-gradient(135deg, #1f0a0d, #ffd700)" },
-      { id: "ocean-teal", name: "الفيروزي المحيطي العميق", gradient: "linear-gradient(135deg, #051617, #38ef7d)" },
-      { id: "royal-twilight", name: "تدرج الغسق", gradient: "linear-gradient(135deg, #180e30, #081224)" },
-      { id: "black-marble", name: "الرخام الأسود والذهب", gradient: "linear-gradient(135deg, #050505, #ffdf00)" },
-      { id: "chocolate-amber", name: "الشوكولاتة والعنبر", gradient: "linear-gradient(135deg, #180e09, #ffbf00)" },
-      { id: "midnight-silver", name: "النيلي الليلي والفضة", gradient: "linear-gradient(135deg, #080c14, #e0e6ed)" },
-      { id: "dark-mint", name: "النعناعي الداكن", gradient: "linear-gradient(135deg, #081714, #70e0a5)" },
-      { id: "crimson-sunset", name: "الشفق القرمزي", gradient: "linear-gradient(135deg, #2b0808, #ff6b6b)" },
-      { id: "royal-cyan", name: "الأزرق والذهب البراق", gradient: "linear-gradient(135deg, #061517, #e4b952)" },
-      { id: "platinum-slate", name: "البلاتينيوم الحجري", gradient: "linear-gradient(135deg, #14171a, #e5c575)" },
-      { id: "smoky-oud", name: "خشب العود المدخن", gradient: "linear-gradient(135deg, #16100c, #d49b6a)" },
-      { id: "plum-velvet", name: "المخمل البرقوقي", gradient: "linear-gradient(135deg, #230e22, #f7b731)" },
-      { id: "pure-gold-black", name: "ذهب خالص وأسود", gradient: "linear-gradient(135deg, #080703, #f5b041)" },
-      { id: "cosmic-aurora", name: "الشفق الكوني", gradient: "linear-gradient(135deg, #091a24, #1b0c26)" }
-    ];
 
-    let selectedThemeId = "emerald";
     let allOrders = [];
     let allPerfumes = [];
     let currentBase64Image = "";
@@ -2008,42 +1980,24 @@ ${giftLine}
       toast("تم تصدير مصنف إكسيل سيف المتقدم بنجاح! 📊");
     });
 
-    const themesContainer = document.getElementById("themesContainer");
-    if (themesContainer) {
-      STORE_THEMES.forEach(th => {
-        const chip = document.createElement("div");
-        chip.className = `theme-chip ${th.id === selectedThemeId ? 'selected' : ''}`;
-        chip.dataset.theme = th.id;
-        chip.innerHTML = `
-          <div class="theme-preview-dot" style="background: ${th.gradient}"></div>
-          <span class="theme-name-text">${th.name}</span>
-        `;
-        chip.addEventListener("click", () => {
-          document.querySelectorAll(".theme-chip").forEach(c => c.classList.remove("selected"));
-          chip.classList.add("selected");
-          selectedThemeId = th.id;
-        });
-        themesContainer.appendChild(chip);
-      });
-    }
-
+// فتح نافذة حالة المتجر
     document.getElementById("openThemeModalBtn")?.addEventListener("click", async () => {
       document.getElementById("dropdownMenu")?.classList.remove("show");
-      const snap = await getDoc(settingsDoc);
-      if (snap.exists()) {
-        const d = snap.data();
-        const chk = document.getElementById("closeStoreCheckbox");
-        if (chk) chk.checked = !!d.isClosed;
-        selectedThemeId = d.theme || "emerald";
-
-        document.querySelectorAll(".theme-chip").forEach(c => {
-          c.classList.toggle("selected", c.dataset.theme === selectedThemeId);
-        });
-        updateStoreToggleUI(!!d.isClosed);
+      try {
+        const snap = await getDoc(settingsDoc);
+        if (snap.exists()) {
+          const d = snap.data();
+          const chk = document.getElementById("closeStoreCheckbox");
+          if (chk) chk.checked = !!d.isClosed;
+          updateStoreToggleUI(!!d.isClosed);
+        }
+      } catch (err) {
+        console.error("خطأ قراءة حالة المتجر:", err);
       }
       document.getElementById("themeModal")?.classList.add("open");
     });
 
+    // تحديث الواجهة التفاعلية لسويتش فتح/إغلاق المتجر
     function updateStoreToggleUI(isClosed) {
       const box = document.getElementById("storeToggleContainer");
       const lbl = document.getElementById("storeStatusLabel");
@@ -2064,15 +2018,28 @@ ${giftLine}
       updateStoreToggleUI(e.target.checked);
     });
 
+    // حفظ حالة المتجر في Firebase لحظياً
     document.getElementById("saveThemeAndStatusBtn")?.addEventListener("click", async () => {
+      const btn = document.getElementById("saveThemeAndStatusBtn");
       const isClosed = document.getElementById("closeStoreCheckbox").checked;
-      await setDoc(settingsDoc, { 
-        isClosed: isClosed, 
-        theme: selectedThemeId 
-      }, { merge: true });
+      
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "جاري الحفظ...";
+      }
 
-      document.getElementById("themeModal")?.classList.remove("open");
-      toast("تم حفظ وتطبيق حالة المتجر لحظياً! 🎨");
+      try {
+        await setDoc(settingsDoc, { isClosed: isClosed }, { merge: true });
+        document.getElementById("themeModal")?.classList.remove("open");
+        toast(isClosed ? "تم إغلاق المتجر وتفعيل وضع الصيانة! 🔒" : "تم فتح المتجر لاستقبال الزوار! ✅");
+      } catch (err) {
+        toast("حدث خطأ أثناء حفظ حالة المتجر!");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "حفظ وتحديث حالة المتجر الآن 💾";
+        }
+      }
     });
 
     function renderAnalytics() {
