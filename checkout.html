@@ -684,7 +684,7 @@
 
   <!-- 5. زر المحادثة العائم المتناوب -->
   <div class="alternating-chat-widget" id="alternating-chat-btn" title="تواصل معنا">
-    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
+    <a href="https://wa.me/201044509946" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
       <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
     </a>
   </div>
@@ -695,7 +695,7 @@
       <img src="logo.png" alt="سيف للعطور" style="height: 55px; margin: 0 auto 10px; display: block;">
       <h2>جاري تحديث قائمة العطور</h2>
       <p>نقوم حالياً بإضافة تشكيلة عطرية جديدة وتحديث الأسعار والمخزون.<br>نعود إليكم في أبهى حلة خلال وقت قصير بإذن الله.</p>
-      <a href="https://wa.me/201101579399" target="_blank" class="btn-choose-option-green" style="margin: 0 auto; max-width: 280px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(124, 179, 66, 0.4); background:#25d366; color:#fff;">
+      <a href="https://wa.me/201044509946" target="_blank" class="btn-choose-option-green" style="margin: 0 auto; max-width: 280px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 20px rgba(124, 179, 66, 0.4); background:#25d366; color:#fff;">
         <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i> تواصل مع الإدارة مباشرة
       </a>
     </div>
@@ -948,7 +948,7 @@ const itemsListText = cart.map((item, idx) =>
         console.warn('تعذر حفظ الطلب:', err.message);
       }
 
-      const storeWhatsAppNumber = localStorage.getItem('seif_whatsapp_number') || '201101579399';
+      const storeWhatsAppNumber = localStorage.getItem('seif_whatsapp_number') || '201044509946';
       window.open(`https://wa.me/${storeWhatsAppNumber}?text=${whatsappBill}`, '_blank');
     });
 
@@ -977,7 +977,7 @@ const itemsListText = cart.map((item, idx) =>
       setTimeout(() => {
         if (isWhatsApp) {
           chatLink.className = 'chat-circle-link whatsapp-mode';
-          chatLink.href = 'https://wa.me/201101579399';
+          chatLink.href = 'https://wa.me/201044509946';
           chatIcon.className = 'fa-brands fa-whatsapp chat-icon';
         } else {
           chatLink.className = 'chat-circle-link messenger-mode';
