@@ -2523,11 +2523,18 @@ document.getElementById("revFileInput")?.addEventListener("change", async (e) =>
         btn.textContent = "جاري التحقق...";
       }
 
-      try {
+try {
         await signInWithEmailAndPassword(auth, email, pass);
-        toast("أهلاً بك في لوحة تحكم سيف للعطور! 💎");
+        toast("أهلاً بك في لوحة التحكم! 💎");
       } catch (err) {
-        alert("البريد الإلكتروني أو كلمة المرور غير صحيحة!");
+        console.error("Firebase Auth Error:", err.code, err.message);
+        if (err.code === "auth/operation-not-allowed") {
+          alert("تنبيه: ميزة تسجيل الدخول بالإيميل غير مفعلة داخل Firebase (Sign-in method)!");
+        } else if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+          alert("كلمة المرور أو البريد الإلكتروني غير متطابقين مع المسجل في Firebase!");
+        } else {
+          alert("خطأ: " + err.message);
+        }
       } finally {
         if (btn) {
           btn.disabled = false;
