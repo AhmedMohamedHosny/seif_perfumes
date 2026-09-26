@@ -550,8 +550,8 @@
               </div>
 
               <div class="input-field-block">
-                <label for="order-notes">ملاحظات لمندوب الشحن أو التستر المفضل (اختياري)</label>
-                <input type="text" id="order-notes" placeholder="مثال: يرجى إرفاق تستر عطر ساوفاج كهدية، أو الاتصال قبل الوصول...">
+                <label for="order-notes">ملاحظات لمندوب الشحن  (اختياري)</label>
+                <input type="text" id="order-notes" placeholder="مثال: يرجى الاتصال قبل الوصول...">
               </div>
             </section>
 
@@ -576,7 +576,6 @@
                 <i class="fa-solid fa-money-bill-wave"></i>
                 <div class="cash-option-texts">
                   <strong>الدفع نقداً عند الاستلام كاش</strong>
-                  <small>افتح الشحنة اختبر ثبات العطر والتستر بنفسك قبل دفع مليم واحد للمندوب.</small>
                 </div>
               </div>
 
@@ -610,10 +609,7 @@
             <strong id="mini-subtotal-val">0.00 ج.م</strong>
           </div>
 
-          <div class="summary-calc-row">
-            <span>التسترات الهدايا:</span>
-            <strong id="mini-gifts-val" style="color:var(--dream-green);">0 تسترات مجانية 🎁</strong>
-          </div>
+
 
           <div class="summary-calc-row">
             <span>مصاريف الشحن:</span>
@@ -629,7 +625,6 @@
 
           <div class="inspection-badge-note">
             <i class="fa-solid fa-shield-halved"></i>
-            <span>معاينة واختبار أمام المندوب: يحق لك فتح كرتونة الشحن بالكامل وتجربة التستر المرفق والتأكد من الثبات قبل السداد.</span>
           </div>
         </aside>
 
@@ -765,7 +760,6 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
 
     qtyBadge.textContent = totalQuantity;
     subtotalEl.textContent = `${subtotalPrice.toLocaleString('ar-EG')} ج.م`;
-    if (giftsEl) giftsEl.textContent = `${totalQuantity} تسترات مجانية (5مل) 🎁`;
 
     // عرض عناصر العطور المصغرة
     itemsContainer.innerHTML = cart.map(item => `
@@ -896,8 +890,8 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
         return;
       }
 
-      const itemsListText = cart.map((item, idx) => 
-        `🔹 *${idx + 1}.* ${item.name}%0A   💧 *الحجم:* ${item.size || 50} مل%0A   🎁 *التستر المجاني:* 1 تستر (5مل)%0A   الكمية: (${item.quantity} زجاجات) | السعر: ${(Number(item.price || 300) * Number(item.quantity || 1)).toLocaleString('ar-EG')} ج.م`
+const itemsListText = cart.map((item, idx) => 
+        `🔹 *${idx + 1}.* ${item.name}%0A   💧 *الحجم:* ${item.size || 50} مل%0A   الكمية: (${item.quantity} زجاجات) | السعر: ${(Number(item.price || 300) * Number(item.quantity || 1)).toLocaleString('ar-EG')} ج.م`
       ).join('%0A');
 
       const finalAmount = subtotalPrice + activeShippingFee;
@@ -917,10 +911,8 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
         `• *المدينة / الحي:* ${city}%0A` +
         `• *العنوان:* ${address}%0A` +
         (mapLink ? `• *الموقع على الخريطة:* ${mapLink}%0A` : '') +
-        (notes ? `• *ملاحظات وتسترات هدايا:* ${notes}%0A` : '') +
         `----------------------------------------%0A` +
-        `🛍️ *العطور والتسترات المطلوبة:*%0A${itemsListText}%0A` +
-        `🎁 *إجمالي التسترات الهدية:* (${totalQuantity}) تسترات مجانية 5مل%0A` +
+        `🛍️ *العطور المطلوبة:*%0A${itemsListText}%0A` +
         `----------------------------------------%0A` +
         `💵 *الحساب المالي:*%0A` +
         `• إجمالي العطور: ${subtotalPrice.toLocaleString('ar-EG')} ج.م%0A` +
