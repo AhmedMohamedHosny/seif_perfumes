@@ -772,7 +772,7 @@
       try {
         await auth.signInWithEmailAndPassword(email, pass);
       } catch (err) {
-        errBox.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة!';
+        errBox.textContent = 'خطأ: ' + err.code + ' - ' + err.message;
         errBox.style.display = 'block';
       }
     });
