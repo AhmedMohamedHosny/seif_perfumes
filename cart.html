@@ -410,9 +410,7 @@
       <span>•</span>
       <span>🚚 معاينة الشحنة واختبار العطر والتأكد من الثبات أمام المندوب قبل الدفع</span>
       <span>•</span>
-      <span>🎁 تستر 5 مل هدية مجانية من اختيارك مع كل زجاجة عطر</span>
-      <span>•</span>
-      <span>💵 الدفع نقداً عند الاستلام كاش بجميع المحافظات</span>
+      <span>💵 الدفع نقداً عند الاستلام كاش بجميع المحافظات او فودافون كاش</span>
     </div>
   </div>
 
@@ -460,7 +458,7 @@
           <i class="fa-solid fa-basket-shopping"></i>
           <div class="status-cross"><i class="fa-solid fa-xmark"></i></div>
         </div>
-        <p>لا توجد أي عطور في عربة التسوق حالياً. اختر عطرك المفضل لتحصل على تستر 5 مل هدية مجانية مع كل زجاجة.</p>
+        <p>لا توجد أي عطور في عربة التسوق حالياً. اختر عطرك المفضل الآن.</p>
         <a href="index.html" class="btn-return-shop">
           <i class="fa-solid fa-arrow-right"></i> استعراض تشكيلة العطور
         </a>
@@ -497,7 +495,6 @@
 
           <div class="cash-delivery-notice">
             <strong>الدفع نقداً عند الاستلام كاش</strong>
-            جميع الطلبات يتم تسليمها مع حق المعاينة واختبار العطر والتستر المرفق أمام المندوب قبل الدفع.
           </div>
 
           <!-- الانتقال لصفحة كتابة العنوان وتأكيد الشحنة -->
@@ -692,7 +689,6 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
       `;}).join('');
 
       subtotalEl.textContent = `${totalPrice.toLocaleString('ar-EG')} ج`;
-      if (giftsEl) giftsEl.textContent = `${totalBottles} تسترات مجانية (5مل) 🎁`;
       finalTotalEl.textContent = `${totalPrice.toLocaleString('ar-EG')} ج`;
     }
 
