@@ -482,10 +482,6 @@
             <strong id="subtotal-display">0 ج</strong>
           </div>
 
-          <div class="invoice-line">
-            <span>التسترات الهدية:</span>
-            <strong id="gifts-display" style="color: var(--dream-green);">0 تسترات مجانية 🎁</strong>
-          </div>
 
           <div class="invoice-line">
             <span>مصاريف الشحن:</span>
@@ -677,9 +673,7 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
               <div style="font-size:0.78rem; font-weight:800; color:var(--dream-green); margin-bottom:2px;">
                 <i class="fa-solid fa-bottle-droplet"></i> الحجم: ${itemSize} مل
               </div>
-              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">
-                🎁 يمنحك ${item.quantity} تستر 5 مل هدية
-              </div>
+
               <div class="cart-item-stepper">
                 <button class="stepper-action-btn" onclick="updateItemQuantity('${item.id}', ${itemSize}, 1)">+</button>
                 <span class="stepper-count-val">${item.quantity}</span>
