@@ -24,6 +24,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
+    .ticker-track {
+      animation-direction: reverse !important;
+    }
     /* --------------------------------------------------------------------------
        تنسيقات صفحة العطر لمتجر سيف للعطور
        -------------------------------------------------------------------------- */
@@ -546,13 +549,6 @@
   <img src="logo.jpg" alt="سيف للعطور SEIF PERFUMES" class="main-store-logo" style="height: 48px; object-fit: contain;">
 </a>
 
-      <!-- حقل البحث السريع المباشر -->
-      <form class="dream-search-bar" action="index.html" method="GET">
-        <input type="text" name="q" placeholder="ابحث عن عطرك المفضل، نوتة عطرية..." autocomplete="off">
-        <button type="submit" class="search-submit-btn" aria-label="بحث">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-      </form>
 
       <div class="dream-header-tools">
         <!-- مفتاح الوضع الليلي -->
@@ -595,23 +591,13 @@
       <!-- بطاقة العطر الرئيسية -->
       <section class="product-single-card">
         
-        <!-- معرض الصور المجهز بالأسهم والتبديل المباشر -->
-        <div class="product-gallery-box" id="product-slider-wrapper">
-          <span class="single-discount-badge" id="detail-discount-tag">وفر 0.00 جنيه</span>
-          
-          <button class="gallery-nav-arrow prev-btn" id="slider-prev-btn" title="الصورة السابقة">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
+<!-- عرض صورة العطر المستقرة بدون وميض أو أسهم -->
+        <div class="product-gallery-box" id="product-slider-wrapper" style="position: relative;">
+          <span class="single-discount-badge" id="detail-discount-tag" style="display: none;"></span>
 
           <div class="main-image-viewport">
-            <img id="detail-img" src="image/S1.png" alt="صورة العطر" style="transition: opacity 0.25s ease;">
+            <img id="detail-img" src="image/S1.png" alt="صورة العطر" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
-
-          <button class="gallery-nav-arrow next-btn" id="slider-next-btn" title="الصورة التالية">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-
-          <div class="gallery-dots-strip" id="gallery-dots-box"></div>
         </div>
 
         <!-- البيانات والأسعار وأزرار التنفيذ -->
@@ -895,26 +881,48 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
       updatePriceUI();
     };
 
-    function updatePriceUI() {
+function updatePriceUI() {
       if (!currentProduct) return;
       const base = Number(currentProduct.price || 300);
-      const calculated = calculateSizePrice(base, chosenSize);
+      const calculatedPrice = calculateSizePrice(base, chosenSize);
       const currentStock = getExactStockForSize(chosenSize);
 
-      let finalPrice = calculated;
+      // جلب السعر القديم المحدد لنفس الحجم (من لوحة الإدارة)
+      let oldPriceForSize = 0;
+      if (currentProduct.oldPrices && currentProduct.oldPrices[chosenSize]) {
+        oldPriceForSize = Number(currentProduct.oldPrices[chosenSize]);
+      } else if (chosenSize === 50 && currentProduct.oldPrice) {
+        oldPriceForSize = Number(currentProduct.oldPrice);
+      }
+
+      let finalPrice = calculatedPrice;
       if (productAppliedDiscountPercent > 0) {
-        finalPrice = calculated * (1 - (productAppliedDiscountPercent / 100));
+        finalPrice = calculatedPrice * (1 - (productAppliedDiscountPercent / 100));
       }
 
       const priceEl = document.getElementById('detail-price');
       const oldPriceEl = document.getElementById('detail-old-price');
+      const discountTag = document.getElementById('detail-discount-tag');
       const stockText = document.getElementById('stock-status-text');
 
       if (priceEl) priceEl.textContent = `${finalPrice.toFixed(0)} ج`;
 
+      // حساب مبلغ التوفير بدقة
+      const savings = oldPriceForSize > calculatedPrice ? (oldPriceForSize - calculatedPrice) : 0;
+
+      // شارة وفر X جنيه: تظهر فقط عند وجود خصم وتختفي تماماً لو لم يحدد المشرف سعراً قبل الخصم
+      if (discountTag) {
+        if (savings > 0) {
+          discountTag.textContent = `وفر ${savings} جنيه 🔥`;
+          discountTag.style.display = 'block';
+        } else {
+          discountTag.style.display = 'none';
+        }
+      }
+
       if (oldPriceEl) {
-        if (productAppliedDiscountPercent > 0 || currentProduct.oldPrice > calculated) {
-          oldPriceEl.textContent = `${calculated} ج`;
+        if (oldPriceForSize > calculatedPrice) {
+          oldPriceEl.textContent = `${oldPriceForSize} ج`;
           oldPriceEl.style.display = 'inline';
         } else {
           oldPriceEl.style.display = 'none';
@@ -944,79 +952,14 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
       const detailTitle = document.getElementById('detail-title');
       if (detailTitle) detailTitle.textContent = prod.name || prod.title;
 
-      updatePriceUI();
-
-      const starsBox = document.getElementById('detail-stars-box');
-      if (starsBox) {
-        let starsHtml = '';
-        const rate = Math.round(Number(prod.rating) || 5);
-        for (let i = 1; i <= 5; i++) {
-          starsHtml += (i <= rate)
-            ? '<i class="fa-solid fa-star"></i>'
-            : '<i class="fa-regular fa-star" style="color:#d1d5db;"></i>';
-        }
-        starsBox.innerHTML = starsHtml;
-      }
-
-      const reviewsEl = document.getElementById('detail-reviews-num');
-      if (reviewsEl) reviewsEl.textContent = `(${prod.ratingCount || 12} تقييم مشتري)`;
-
-      renderSpecsTable(prod.notes || prod.desc);
-      renderRelatedItems(prod);
-      setupImageSlider(prod);
-    }
-
-    function setupImageSlider(prod) {
-      if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
-        activeImages = prod.images.filter(Boolean);
-      } else if (prod.image) {
-        activeImages = [prod.image];
-      } else {
-        activeImages = ['image/S1.png'];
-      }
-
-      currentImgIndex = 0;
-      updateSliderUI();
-
-      const dotsBox = document.getElementById('gallery-dots-box');
-      if (dotsBox) {
-        dotsBox.innerHTML = activeImages.map((_, idx) => `
-          <span class="gallery-dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx})"></span>
-        `).join('');
-      }
-
-      startAutoSlide();
-    }
-
-    function updateSliderUI() {
+      // تثبيت صورة العطر مباشرة بدون وميض
       const imgEl = document.getElementById('detail-img');
-      if (imgEl && activeImages[currentImgIndex]) {
-        imgEl.style.opacity = '0.35';
-        setTimeout(() => {
-          imgEl.src = activeImages[currentImgIndex];
-          imgEl.style.opacity = '1';
-        }, 120);
-      }
-      document.querySelectorAll('.gallery-dot').forEach((dot, idx) => {
-        dot.classList.toggle('active', idx === currentImgIndex);
-      });
-    }
+      if (imgEl) imgEl.src = prod.image || 'image/S1.png';
 
-    function nextSlide() {
-      currentImgIndex = (currentImgIndex + 1) % activeImages.length;
-      updateSliderUI();
+      updatePriceUI();
+      renderSpecsTable(prod.desc || prod.notes);
+      renderRelatedItems(prod);
     }
-
-    function startAutoSlide() {
-      if (sliderInterval) clearInterval(sliderInterval);
-      sliderInterval = setInterval(nextSlide, 3000);
-    }
-
-    document.getElementById('slider-next-btn')?.addEventListener('click', nextSlide);
-    document.getElementById('slider-prev-btn')?.addEventListener('click', () => {
-      currentImgIndex = (currentImgIndex - 1 + activeImages.length) % activeImages.length;
-      updateSliderUI();
-    });
 
 function renderSpecsTable(notes) {
       const specsContainer = document.getElementById('specs-table-body');
