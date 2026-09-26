@@ -13,7 +13,7 @@ import {
    1. تهيئة مشروع فايربيز (سيف للعطور)
    ========================================================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyBpk0UVLAnHsaTZtSTxMfINOHkuAS8OE9Q",
+  apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
   authDomain: "seif-perfumes.firebaseapp.com",
   projectId: "seif-perfumes",
   storageBucket: "seif-perfumes.firebasestorage.app",
