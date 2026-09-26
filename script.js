@@ -1101,6 +1101,8 @@ onSnapshot(settingsDoc, (snap) => {
       reviewsPlaceholderText = d.reviewsPlaceholder;
       renderReviews(lastReviewsList);
     }
+    const closedModal = document.getElementById("store-closed-modal");
+    if (closedModal) closedModal.style.display = d.isClosed ? "flex" : "none";
   }
 });
 
