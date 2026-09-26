@@ -107,59 +107,50 @@ function getProductExactStock(prod, size = 50) {
    ========================================================= */
 function generateProductCardHtml(p) {
   const isFav = wishlist.some(id => String(id) === String(p.id));
-  const startingPrice = getProductExactPrice(p, 10) || getProductExactPrice(p, 30) || p.price;
-  const catLabel = p.category === "men" ? "رجالي" : p.category === "women" ? "نسائي" : "للجنسين";
-  const catBadgeClass = p.category === "women" ? "badge-pink" : p.category === "men" ? "badge-blue" : "badge-gold";
+  const catLabel = p.category === "men" ? "رجالي 👔" : p.category === "women" ? "حريمي 🌸" : "للجنسين ✨";
 
   return `
-    <article class="compact-perfume-card dream-product-card" data-id="${p.id}">
-      <div class="card-visual-wrap" style="position: relative;">
-        ${p.bestseller ? '<span class="card-star-badge">الأكثر مبيعاً 🔥</span>' : ''}
-        
-        <!-- زر العين بالأعلى ينقلك مباشرة لصفحة العطر -->
-        <button type="button" 
-                onclick="window.location.href='product.html?id=${p.id}'" 
-                style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.25); color: #fff; border-radius: 50%; width: 34px; height: 34px; display: grid; place-items: center; font-size: 15px; cursor: pointer; z-index: 5;" 
-                title="عرض تفاصيل العطر">
-          👁️
-        </button>
+    <article class="compact-perfume-card dream-product-card" data-id="${p.id}" style="padding: 10px; border-radius: 12px; display: flex; flex-direction: column;">
+      <div class="card-visual-wrap" style="position: relative; overflow: hidden; border-radius: 10px; margin-bottom: 8px;">
+        ${p.bestseller ? '<span class="card-star-badge" style="position: absolute; top: 10px; right: 10px; z-index: 4;">الأكثر مبيعاً 🔥</span>' : ''}
 
-        <button type="button" 
-                class="card-fav-btn ${isFav ? 'active' : ''}" 
-                data-action="wishlist" 
-                data-id="${p.id}" 
-                style="top: 10px; left: 10px;"
-                title="إضافة للمفضلة">
-          ${isFav ? '♥' : '♡'}
-        </button>
+        <!-- شارة نوع العطر (مستطيل أنيق يوضح رجالي أو حريمي) -->
+        <span style="position: absolute; top: 10px; ${p.bestseller ? 'left: 10px;' : 'right: 10px;'}; background: rgba(7, 25, 20, 0.85); border: 1px solid var(--gold, #d4af37); color: var(--gold, #d4af37); font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; z-index: 4; backdrop-filter: blur(4px);">
+          ${catLabel}
+        </span>
 
-        <img src="${p.image || 'image/S1.png'}" alt="${escapeHtml(p.name)}" class="card-perfume-img" onclick="window.location.href='product.html?id=${p.id}'" style="cursor: pointer;" loading="lazy">
-      </div>
-
-      <div class="card-data-wrap">
-        <div class="card-category-row" style="margin-bottom: 6px;">
-          <span class="compact-cat-badge ${catBadgeClass}">${catLabel}</span>
-        </div>
-
-        <h3 class="card-perfume-name" onclick="window.location.href='product.html?id=${p.id}'" style="cursor: pointer; margin-bottom: 6px;">${escapeHtml(p.name)}</h3>
-
-        <!-- زر اضغط لعرض التفاصيل فقط بدون أي كلام إضافي -->
-        <a href="product.html?id=${p.id}" style="display: block; font-size: 0.8rem; color: var(--gold, #d4af37); text-decoration: none; font-weight: 700; margin-bottom: 12px; cursor: pointer;">
-          اضغط لعرض التفاصيل ➔
-        </a>
-
-        <div class="card-action-footer">
-          <div class="card-price-stack">
-            <span class="price-from-txt">يبدأ من:</span>
-            <strong class="card-price-val">${formatPrice(startingPrice)}</strong>
-          </div>
-
+        <!-- أزرار الإجراءات: القلب وفوقه/تحته العين لتكون مريحة بالضغط -->
+        <div style="position: absolute; bottom: 10px; left: 10px; display: flex; flex-direction: column; gap: 8px; z-index: 5;">
+          <!-- زر المفضلة يتغير لونه للأحمر عند الضغط -->
           <button type="button" 
-                  class="card-quick-buy-btn btn-choose-option-green" 
-                  onclick="window.location.href='product.html?id=${p.id}'">
-            <span>شراء ⚡</span>
+                  class="card-fav-btn ${isFav ? 'active' : ''}" 
+                  data-action="wishlist" 
+                  data-id="${p.id}" 
+                  style="position: static; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.25); color: ${isFav ? '#e74c3c' : '#ffffff'}; display: grid; place-items: center; font-size: 17px; cursor: pointer; transition: 0.2s;" 
+                  title="إضافة للمفضلة">
+            ${isFav ? '♥' : '♡'}
+          </button>
+
+          <!-- زر العين -->
+          <button type="button" 
+                  onclick="window.location.href='product.html?id=${p.id}'" 
+                  style="width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.25); color: #fff; display: grid; place-items: center; font-size: 15px; cursor: pointer; transition: 0.2s;" 
+                  title="عرض تفاصيل العطر">
+            👁️
           </button>
         </div>
+
+        <img src="${p.image || 'image/S1.png'}" alt="${escapeHtml(p.name)}" class="card-perfume-img" onclick="window.location.href='product.html?id=${p.id}'" style="cursor: pointer; width: 100%; height: 260px; object-fit: cover; display: block; border-radius: 8px;" loading="lazy">
+      </div>
+
+      <!-- تحت الزجاجة: زر اضغط هنا لعرض التفاصيل فقط -->
+      <div style="margin-top: auto; padding: 4px 0;">
+        <button type="button" 
+                onclick="window.location.href='product.html?id=${p.id}'" 
+                style="width: 100%; background: linear-gradient(135deg, #d4af37, #b8972e); color: #071914; font-weight: 800; font-size: 13px; padding: 10px; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
+          <span>اضغط هنا لعرض التفاصيل</span>
+          <span style="font-size: 14px;">➔</span>
+        </button>
       </div>
     </article>
   `;
