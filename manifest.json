@@ -1,0 +1,26 @@
+{
+  "name": "سيف للعطور - SEIF PERFUMES",
+  "short_name": "سيف للعطور",
+  "description": "متجر سيف للعطور للتركيبات والعطور العالمية الفاخرة",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#071914",
+  "theme_color": "#0a221c",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
