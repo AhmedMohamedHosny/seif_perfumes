@@ -562,12 +562,7 @@
     </div>
   </footer>
 
-  <!-- 5. زر المحادثة العائم المتناوب -->
-  <div class="alternating-chat-widget" id="alternating-chat-btn" title="تواصل معنا">
-    <a href="https://wa.me/201101579399" target="_blank" class="chat-circle-link whatsapp-mode" id="chat-link">
-      <i class="fa-brands fa-whatsapp chat-icon" id="chat-icon"></i>
-    </a>
-  </div>
+
 
   <!-- شاشة الصيانة الإدارية -->
   <div class="store-closed-screen" id="store-closed-modal" style="display: none;">
@@ -575,7 +570,7 @@
       <img src="logo.jpg" alt="سيف للعطور" style="height: 55px; margin: 0 auto;">
       <h2>جاري تحديث قائمة العطور</h2>
       <p>نقوم حالياً بإضافة تشكيلة عطرية جديدة وتحديث الأسعار والمخزون.<br>نعود إليكم خلال وقت قصير بإذن الله.</p>
-      <a href="https://wa.me/201101579399" target="_blank" class="btn-send-whatsapp-order" style="margin: 0 auto; max-width: 280px; display:flex; align-items:center; justify-content:center; gap:10px; background:#25d366; color:#fff; padding:14px; border-radius:50px; font-weight:900; text-decoration:none;">
+      <a href="https://wa.me/201044509946" target="_blank" class="btn-send-whatsapp-order" style="margin: 0 auto; max-width: 280px; display:flex; align-items:center; justify-content:center; gap:10px; background:#25d366; color:#fff; padding:14px; border-radius:50px; font-weight:900; text-decoration:none;">
         <i class="fa-brands fa-whatsapp"></i> تواصل مع إدارة المتجر مباشرة
       </a>
     </div>
@@ -726,26 +721,7 @@ apiKey: "AIzaSyBpk0UVlAnHsaTZtSTxMfINOHkuAS80E9Q",
       }
     });
 
-    const chatLink = document.getElementById('chat-link');
-    const chatIcon = document.getElementById('chat-icon');
-    let isWhatsApp = true;
-    setInterval(() => {
-      isWhatsApp = !isWhatsApp;
-      if (!chatIcon || !chatLink) return;
-      chatIcon.classList.add('rotate-anim');
-      setTimeout(() => {
-        if (isWhatsApp) {
-          chatLink.className = 'chat-circle-link whatsapp-mode';
-          chatLink.href = 'https://wa.me/201101579399';
-          chatIcon.className = 'fa-brands fa-whatsapp chat-icon';
-        } else {
-          chatLink.className = 'chat-circle-link messenger-mode';
-          chatLink.href = 'https://m.me/seifperfumes';
-          chatIcon.className = 'fa-brands fa-facebook-messenger chat-icon';
-        }
-        chatIcon.classList.remove('rotate-anim');
-      }, 250);
-    }, 5000);
+
 
     document.addEventListener('DOMContentLoaded', renderCart);
   </script>
