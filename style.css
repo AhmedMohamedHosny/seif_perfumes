@@ -1817,3 +1817,6 @@ body.dark-mode .sharaqa-style-footer {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
+.ticker-track {
+  animation-direction: reverse !important;
+}
