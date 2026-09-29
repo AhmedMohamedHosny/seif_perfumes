@@ -505,6 +505,9 @@ input, select, textarea {
         <div class="dropdown-item" onclick="openSection('customerServiceSec')" style="color: #4ade80;">
           <span>💬 إدارة خدمة العملاء والأسئلة الشائعة</span>
         </div>
+        <div class="dropdown-item" id="sync99PerfumesBtn" style="color: #f1c40f; background: rgba(212,175,55,0.1); border: 1px dashed var(--gold);">
+          <span>📥 رفع لستة الـ 99 عطر لـ Firebase بنقرة واحدة ⚡</span>
+        </div>
       </div>
     </div>
   </header>
@@ -2659,6 +2662,216 @@ try {
           btn.disabled = false;
           btn.textContent = "💾 حفظ وتحديث رقم الواتساب";
         }
+      }
+    });
+    /* =========================================================
+       مولّد الفريم الملكي المخصص لكل عطر (صورة افتراضية فاخرة)
+       ========================================================= */
+    function createPerfumeLuxuryFrame(nameAr, nameEn) {
+      const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750">
+        <defs>
+          <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#0e342a"/>
+            <stop offset="60%" stop-color="#071914"/>
+            <stop offset="100%" stop-color="#040e0b"/>
+          </radialGradient>
+          <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f5d77f"/>
+            <stop offset="50%" stop-color="#d4af37"/>
+            <stop offset="100%" stop-color="#aa820a"/>
+          </linearGradient>
+        </defs>
+        <rect width="600" height="750" fill="url(#bgGrad)"/>
+        <!-- إطار خارجي مذهب -->
+        <rect x="25" y="25" width="550" height="700" rx="16" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" opacity="0.85"/>
+        <rect x="35" y="35" width="530" height="680" rx="12" fill="none" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="6,4" opacity="0.4"/>
+        
+        <!-- تاج وزخرفة رأسية -->
+        <text x="300" y="110" font-family="'Cairo', sans-serif" font-size="28" fill="url(#goldGrad)" text-anchor="middle" font-weight="900">👑</text>
+        <text x="300" y="145" font-family="'Cairo', sans-serif" font-size="14" fill="#8da49c" text-anchor="middle" letter-spacing="4">SEIF PERFUMES</text>
+        <text x="300" y="170" font-family="'Cairo', sans-serif" font-size="18" fill="url(#goldGrad)" text-anchor="middle" font-weight="900">سيف للعطور</text>
+        
+        <!-- أيقونة زجاجة عطر ذهبية بمنتصف الفريم -->
+        <path d="M280 230 L320 230 L320 250 L335 260 L335 340 L265 340 L265 260 L280 250 Z" fill="none" stroke="url(#goldGrad)" stroke-width="2" opacity="0.6"/>
+        <circle cx="300" cy="290" r="16" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.5"/>
+        
+        <!-- اسم العطر بالعربي -->
+        <text x="300" y="440" font-family="'Cairo', sans-serif" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="900">
+          ${nameAr}
+        </text>
+        
+        <!-- خط فاصل -->
+        <line x1="200" y1="465" x2="400" y2="465" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.7"/>
+        
+        <!-- اسم العطر بالإنجليزي -->
+        <text x="300" y="505" font-family="'Cairo', sans-serif" font-size="19" fill="url(#goldGrad)" text-anchor="middle" font-weight="700" letter-spacing="1">
+          ${nameEn}
+        </text>
+        
+        <!-- ختم الفخامة بالأسفل -->
+        <text x="300" y="650" font-family="'Cairo', sans-serif" font-size="12" fill="#8da49c" text-anchor="middle" letter-spacing="3">✦ تركيبة معتقة وزيوت فرنسية نقية ✦</text>
+      </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    /* =========================================================
+       قائمة الـ 99 عطر المصنفة بالكامل (عربي + إنجليزي + نوتات)
+       ========================================================= */
+    const ALL_99_PERFUMES = [
+      { ar: "بكرات روج", en: "Baccarat Rouge 540", cat: "unisex", notes: "عنبر، زعفران نقي، ياسمين وأخشاب الأرز المعتقة" },
+      { ar: "سترونجر ويذ يو إنتنسلي", en: "Stronger With You Intensely", cat: "men", notes: "فانيليا دافئة، قرفة، عنبر شرقي وحلوى التوفي" },
+      { ar: "سترونجر عنبر", en: "Stronger With You Amber", cat: "unisex", notes: "عنبر بلوري فاخر، خزامى برية وفانيليا بوربون" },
+      { ar: "لو مال إكسير", en: "Le Male Elixir", cat: "men", notes: "عسل نقي، لافندر فرنسي، حبوب التونكا ونعناع منعش" },
+      { ar: "نوتيكا فوياج", en: "Nautica Voyage", cat: "men", notes: "تفاح أخضر بارد، لوتس مائي، نسيم البحر ومسك أبيض" },
+      { ar: "لو بو بارادايس جاردن", en: "Le Beau Paradise Garden", cat: "men", notes: "جوز هند استوائي، تين أخضر، نسيم شاطئي ونعناع" },
+      { ar: "إمبريال فالي", en: "Imperial Valley", cat: "unisex", notes: "جلود إيطالية، إكليل الجبل، برغموت صقلي وعنبر رمادي" },
+      { ar: "عود وصال", en: "Wisal Oud", cat: "unisex", notes: "عود مبخر، ورد طائفي، بهارات دافئة وخشب الصندل" },
+      { ar: "تو وان تو", en: "212 Men NYC", cat: "men", notes: "حمضيات منعشة، زنجبيل، فلفل أخضر وأخشاب الجاياك" },
+      { ar: "فانتوم", en: "Phantom", cat: "men", notes: "لافندر متبل، ليمون إيطالي، دخان معتق وفانيليا كريمية" },
+      { ar: "دنهل ديزاير", en: "Dunhill Desire Red", cat: "men", notes: "تفاح أحمر، فانيليا مدغشقر، ورد جوري وخشب الساج" },
+      { ar: "سكلبتشر", en: "Sculpture Homme", cat: "men", notes: "زهر البرتقال، برغموت، حبوب التونكا وراتنج البنزوين" },
+      { ar: "خمرة", en: "Khamrah Lattafa", cat: "unisex", notes: "قرفة سيلانية، تمور مكرملة، جوزة الطيب وحلوى البرالين" },
+      { ar: "خمرة قهوة", en: "Khamrah Qahwa", cat: "unisex", notes: "بن محمص فاخر، هيل، كرز داكن وفانيليا مدخنة" },
+      { ar: "عود مضاوي", en: "Madawi Oud", cat: "unisex", notes: "عود فاخر نقي، خوخ، ياسمين هندي وباتشولي" },
+      { ar: "مضاوي جولد", en: "Madawi Gold", cat: "unisex", notes: "أناناس ذهبي، هيل، زهر البابايا وعنبر ملكي" },
+      { ar: "هوجو بوس", en: "Hugo Boss Bottled", cat: "men", notes: "تفاح، قرفة خفيفة، إبرة الراعي، قرنفل وخشب الأرز" },
+      { ar: "إيماجينيشن", en: "Imagination", cat: "men", notes: "شاي أسود نادر، حمضيات صقلية، زنجبيل كولومبي وقرفة" },
+      { ar: "وان مليون", en: "1 Million", cat: "men", notes: "قرفة حارة، جلد أسود، جريب فروت، نعناع وعنبر" },
+      { ar: "أكوا دي جيو", en: "Acqua Di Gio", cat: "men", notes: "مياه البحر العميقة، برغموت، إكليل الجبل وخشب الباتشولي" },
+      { ar: "فلير", en: "Flowerbomb / Fleur", cat: "women", notes: "باقة أوركيد ملكية، ياسمين سامباك، فريزيا وباتشولي" },
+      { ar: "أومبري ليذر", en: "Ombré Leather", cat: "unisex", notes: "جلود مدبوغة فاخرة، هيل أخضر، ياسمين وعنبر أسود" },
+      { ar: "بي إم", en: "BM Black", cat: "men", notes: "أخشاب الصندل الجبلية، ليمون مجفف وتوابل عطرية باردة" },
+      { ar: "باد بوي", en: "Bad Boy", cat: "men", notes: "فلفل أسود وأبيض، حبوب الكاكاو الداكنة، برغموت وتونكا" },
+      { ar: "إنفكتوس", en: "Invictus", cat: "men", notes: "أمواج البحر المنعشة، جريب فروت، أوراق الغار وأخشاب الجاياك" },
+      { ar: "إنفكتوس فيكتوري", en: "Invictus Victory", cat: "men", notes: "فانيليا مكثفة، لبان عربي فاخر، لافندر وفلفل وردي" },
+      { ar: "أسد", en: "Asad Lattafa", cat: "men", notes: "تبغ معتق، فلفل أسود، قهوة داكنة، عنبر وخشب الأرز" },
+      { ar: "كيالي فانيليا 28", en: "Kayali Vanilla 28", cat: "women", notes: "سكر بني مكرمل، فانيليا مدغشقر، أوركيد وحبوب التونكا" },
+      { ar: "سيجار", en: "Cigar Remy Latour", cat: "men", notes: "تبغ كلاسيكي أصلي، خشب الصندل، باتشولي وجوزة الطيب" },
+      { ar: "بينك شوجر", en: "Pink Sugar", cat: "women", notes: "غزل البنات، كراميل فرنسي، فانيليا ناعمة وتوت العليق" },
+      { ar: "عود أبيض", en: "White Oud", cat: "unisex", notes: "عود ناعم سحابي، مسك مخملي، زعفران وزهور بيضاء" },
+      { ar: "بوس ذا سنت", en: "Boss The Scent", cat: "men", notes: "فاكهة المانينكا الأفريقية، زنجبيل، جلود ناعمة وخزامى" },
+      { ar: "سكاندال رجالي", en: "Scandal Pour Homme", cat: "men", notes: "كراميل بني دافئ، حبوب التونكا، ميرمية ونجيل الهند" },
+      { ar: "سكاندال حريمي", en: "Scandal Women", cat: "women", notes: "عسل نحل جبلي، جاردينيا بيضاء، برتقال دموي وباتشولي" },
+      { ar: "ميجامار", en: "Megamare", cat: "unisex", notes: "يود البحر المركز، طحالب بحرية، ملوحة المحيط وعنبر أسطوري" },
+      { ar: "مون بلان بلو", en: "Montblanc Explorer Blue", cat: "men", notes: "حمضيات صقلية، نسيم المحيط، فلفل وردي وباتشولي" },
+      { ar: "الوسام", en: "Al Wisam Day", cat: "men", notes: "شاي أخضر نقي، ورد طازج، لافندر، ليمون وخشب الصندل" },
+      { ar: "كريد أفينتوس", en: "Creed Aventus", cat: "men", notes: "أناناس ملكي، كشمش أسود، دخان البتولا، مسك وعنبر الحوت" },
+      { ar: "الثائر", en: "Al Thaer", cat: "men", notes: "بخور شرقي نادر، هيل نيبالي، جلود معتقة وعنبر خشن" },
+      { ar: "بيانكو لاتيه", en: "Bianco Latte", cat: "unisex", notes: "حليب ساخن مكثف، كراميل ذهبي، عسل وفانيليا ناعمة" },
+      { ar: "عود بوكيه", en: "Oud Bouquet", cat: "unisex", notes: "شوكولاتة برالين، عود لاوسي، ورد جوري وفانيليا" },
+      { ar: "ميدنايت روز", en: "Midnight Rose", cat: "women", notes: "توت العليق، ورد دمشقي، كشمش أسود، فانيليا ومسك" },
+      { ar: "أمير العرب", en: "Ameer Al Arab", cat: "men", notes: "هيل أخضر، ريحان منعش، نعناع بري، فلفل ومسك ملكي" },
+      { ar: "أميرة العرب", en: "Ameerat Al Arab", cat: "women", notes: "زهور الياسمين والورد، مسك أبيض، فواكه وفانيليا" },
+      { ar: "جود أوف فاير", en: "God of Fire", cat: "unisex", notes: "مانجو استوائية طازجة، زنجبيل كولومبي، توت العليق وعنبر" },
+      { ar: "بلو دي شانيل", en: "Bleu de Chanel", cat: "men", notes: "جريب فروت، بخور معتق، زنجبيل، نعناع وخشب الأرز" },
+      { ar: "إحساس", en: "Ehsas Arabian Oud", cat: "unisex", notes: "زهور جبلية ناعمة، خشب التفاح، عنبر أبيض وخشب الصندل" },
+      { ar: "بلاك إكس إس", en: "Black XS", cat: "men", notes: "شوكولاتة برالين داكنة، ليمون، هيل أسود وخشب الورد" },
+      { ar: "باسيفيك تشيل", en: "Pacific Chill", cat: "unisex", notes: "برتقال كاليفورنيا، مشمش، كشمش أسود ونعناع بارد" },
+      { ar: "سيلفر سنت", en: "Silver Scent", cat: "men", notes: "زهر البرتقال، ليتشي، لافندر، جوزة الطيب وحبوب التونكا" },
+      { ar: "برادا بارادوكس", en: "Prada Paradoxe", cat: "women", notes: "كمثرى مقرمشة، زهر البرتقال، ياسمين ونفحات مسك بيضاء" },
+      { ar: "لاكوست وايت", en: "Lacoste White", cat: "men", notes: "جريب فروت، هيل أخضر، مسك الروم النقي وخشب الأرز" },
+      { ar: "لاكوست إسينشال", en: "Lacoste Essential", cat: "men", notes: "أوراق الطماطم العطرية، حمضيات خضراء، كشمش وخشب الصندل" },
+      { ar: "دوفيدوف تشامبيون", en: "Champion Davidoff", cat: "men", notes: "برغموت حاد، ليمون مثلج، ميرمية وخشب الأرز الجبلي" },
+      { ar: "تراب الذهب", en: "Turab Al Dhahab", cat: "women", notes: "جوز هند كريمي، فانيليا سكرية، ياسمين وزهور بيضاء" },
+      { ar: "شيروتي 1881", en: "Cerruti 1881", cat: "men", notes: "صنوبر غابات، سرو أخضر، لافندر كلاسيكي وبرغموت" },
+      { ar: "عود شهرة", en: "Shuhrah Rasasi", cat: "men", notes: "دخان خفيف، أوراق الطماطم، ورد، أخشاب الأرز وجلود" },
+      { ar: "جود جيرل", en: "Good Girl", cat: "women", notes: "حبوب القهوة، لوز محمص، مسك الروم، كاكاو وتونكا دافئة" },
+      { ar: "كول ووتر", en: "Cool Water", cat: "men", notes: "أمواج المحيط الباردة، نعناع منعش، إكليل الجبل وخشب الصندل" },
+      { ar: "لاف إز هيفن", en: "Love in Heaven", cat: "women", notes: "زهور السوسن الملكية، أرز أبيض، ماغنوليا وفانيليا ناعمة" },
+      { ar: "عود بخور فلورال", en: "Floral Oud Bakhoor", cat: "unisex", notes: "بخور خليجي معتق، عود هندي فاخر، ورد جوري وزعفران" },
+      { ar: "يارا كاندي", en: "Yara Candy", cat: "women", notes: "حلوى الفراولة، فانيليا سحابية، توت أحمر ومسك السكر" },
+      { ar: "روز فانيليا", en: "Roses Vanille Mancera", cat: "women", notes: "سكر نقي مبلل، ورد فرنسي، فانيليا بيضاء ومسك مخملي" },
+      { ar: "مون سباركل", en: "Moon Sparkle Escada", cat: "women", notes: "فراولة طازجة، كشمش أحمر، تفاح سكري وياسمين" },
+      { ar: "بربري هير", en: "Burberry Her", cat: "women", notes: "توت العليق، توت بري داكن، كشمش أسود وعنبر سكري" },
+      { ar: "كريزي لاف", en: "Crazy Love", cat: "women", notes: "فواكه استوائية دافئة، خوخ، فانيليا سائلة ومسك زهري" },
+      { ar: "فيري سيكسي ناو", en: "Very Sexy Now", cat: "women", notes: "لوتس أبيض، جوز هند منعش، جاردينيا استوائية وحمضيات" },
+      { ar: "إسكيب", en: "Escape Calvin Klein", cat: "men", notes: "شمام منعش، كافور، ميرمية، خشب الصندل وباتشولي" },
+      { ar: "فليم / كراش لهب", en: "Eros Flame / Crash", cat: "men", notes: "برتقال صقلي متبل، فلفل أسود، إكليل الجبل وتونكا" },
+      { ar: "ألف ليلة وليلة", en: "Alf Laila O Laila", cat: "unisex", notes: "خشب الصندل الهندي، عود مبخر، ورد دمشقي ومسك" },
+      { ar: "رومبا", en: "Rumba Ted Lapidus", cat: "women", notes: "برقوق أسود، عسل نحل، زهر البرتقال، جلود وباتشولي" },
+      { ar: "دنهل ديزاير بلو", en: "Dunhill Desire Blue", cat: "men", notes: "ليتشي استوائي، لوتس، مياه البحر الصافية وخشب الورد" },
+      { ar: "سي كي وان", en: "CK One", cat: "unisex", notes: "ليمون أخضر، شاي منعش، هيل، أناناس ومسك قطني" },
+      { ar: "باي جيفنشي", en: "Pi Givenchy", cat: "men", notes: "فانيليا فاخرة، لوز محمص، سكر بني، يانسون وراتنج البنزوين" },
+      { ar: "أمير العود", en: "Ameer Al Oudh Intense", cat: "unisex", notes: "عود مسكر، فانيليا مدخنة، سكر مكرمل وأخشاب الصندل" },
+      { ar: "فانيليا باودر", en: "Vanilla Powder", cat: "unisex", notes: "فانيليا مدغشقر البودرية، جوز هند ومسك أبيض نقي" },
+      { ar: "مسك الفراولة", en: "Strawberry Musk", cat: "unisex", notes: "فراولة طازجة، مسك أبيض ولمسة سكرية ناعمة" },
+      { ar: "مسك بيلا", en: "Bella Musk", cat: "women", notes: "فواكه ربيعية زاهية، مسك ناعم وزهور الماغنوليا" },
+      { ar: "مسك المارشميلو", en: "Marshmallow Musk", cat: "women", notes: "مارشميلو قطني، فانيليا سكرية ومسك حريري خفيف" },
+      { ar: "مسك التوت الأحمر", en: "Red Berries Musk", cat: "unisex", notes: "توت العليق، كشمش أحمر ومسك ثلجي منعش" },
+      { ar: "مسك الرمان", en: "Pomegranate Musk", cat: "unisex", notes: "رمان ياقوتي طازج، كركديه، مسك بارد وقطرات الندى" },
+      { ar: "مسك الخوخ", en: "Peach Musk", cat: "unisex", notes: "خوخ مخملي ياباني، زهر الدراق ومسك فرنسي ناعم" },
+      { ar: "مسك الفانيليا", en: "Vanilla Musk", cat: "unisex", notes: "فانيليا طبيعية معتقة، زهور الأوركيد ومسك أبيض ملكي" },
+      { ar: "مسك باودر", en: "Powder Musk", cat: "unisex", notes: "بودرة التلك الفاخرة، أزهار بيضاء ومسك نظافة فائق النقاء" },
+      { ar: "مسك أميرة العرب", en: "Ameerat Al Arab Musk", cat: "women", notes: "زهور شرقية أنيقة، رحيق فواكه ومسك دافئ ناعم" },
+      { ar: "مسك الطهارة الأبيض", en: "White Tahara Musk", cat: "unisex", notes: "مسك طهارة نقي كثيف، قطن ناصع ونظافة تدوم أياماً" },
+      { ar: "مسك المانجو", en: "Mango Musk", cat: "unisex", notes: "مانجو ألفونسو الاستوائية، رحيق صيفي ومسك بارد" },
+      { ar: "المسك الأحمر", en: "Red Musk", cat: "unisex", notes: "مسك متبل غامض، دارسين خفيف، توت وعنبر دافئ" },
+      { ar: "مارفل مان", en: "Marvel Man", cat: "men", notes: "أخشاب عطرية داكنة، برغموت، ليمون وفلفل أسود" },
+      { ar: "بلاتينيوم إيجويست", en: "Platinum Égoïste", cat: "men", notes: "إكليل الجبل، لافندر جبلي، نجيل الهند وإبرة الراعي" },
+      { ar: "جيمي شو", en: "Jimmy Choo", cat: "women", notes: "حلوى التوفي، أوركيد النمر النادر، باتشولي ونوتات خضراء" },
+      { ar: "دراكار نوار", en: "Drakkar Noir", cat: "men", notes: "لافندر كلاسيكي، إكليل الجبل، نعناع، شجرة الشيح وجلود" },
+      { ar: "التميز", en: "Al Tameez", cat: "men", notes: "عنبر ملكي، عود خفيف، لبان حوجري ومسك فاخر" },
+      { ar: "ديور سوفاج", en: "Dior Sauvage", cat: "men", notes: "فلفل سيتشوان البري، برغموت كالابريا، أمبروكسان وخشب الأرز" },
+      { ar: "إربا بورا", en: "Erba Pura Xerjoff", cat: "unisex", notes: "حمضيات صقلية، سلة فواكه متوسطية ناضجة ومسك أبيض" },
+      { ar: "جي ثري", en: "G3 Pour Homme", cat: "men", notes: "أخشاب الصندل، باتشولي مدخن وتوابل منعشة" },
+      { ar: "وان مان شو", en: "One Man Show", cat: "men", notes: "أخشاب الصنوبر، طحلب البلوط، ريحان جبلي وجلود كلاسيكية" },
+      { ar: "تيد لابيدوس", en: "Ted Lapidus Pour Homme", cat: "men", notes: "أناناس، عسل بري، تبغ مدخن، بخور وخشب الصندل" },
+      { ar: "كنزو هوم", en: "Kenzo Homme", cat: "men", notes: "نسيم المحيط العميق، خشب الصنوبر، صندل وخشب الأرز" }
+    ];
+
+    /* =========================================================
+       زر رفع ومزامنة الـ 99 عطر بضغطة زر واحدة إلى Firebase
+       ========================================================= */
+    document.getElementById("sync99PerfumesBtn")?.addEventListener("click", async () => {
+      const confirmSync = confirm(`هل أنت متأكد من رفع ومزامنة لستة العطور كاملة (${ALL_99_PERFUMES.length} عطر) إلى قاعدة البيانات بالأسعار والفريمات الملكية الآن؟`);
+      if (!confirmSync) return;
+
+      const btn = document.getElementById("sync99PerfumesBtn");
+      btn.style.pointerEvents = "none";
+      btn.innerHTML = "<span>⏳ جاري رفع الـ 99 عطر لفايربيز...</span>";
+      toast("جاري رفع وتوليد العطور سحابياً... قد يستغرق دقيقة ⏳");
+
+      let count = 0;
+      try {
+        for (const item of ALL_99_PERFUMES) {
+          const fullName = `${item.ar} | ${item.en}`;
+          const frameImg = createPerfumeLuxuryFrame(item.ar, item.en);
+
+          // تسعير افتراضي منظم للأحجام الأربعة (يمكنك تعديل أي عطر لاحقاً بزر التعديل ✏️)
+          const basePrice50 = item.cat === "unisex" ? 400 : item.cat === "women" ? 350 : 320;
+          const price10 = Math.round((basePrice50 * 0.35) / 10) * 10;
+          const price30 = Math.round((basePrice50 * 0.65) / 10) * 10;
+          const price100 = Math.round((basePrice50 * 1.70) / 10) * 10;
+
+          await addDoc(perfumesCol, {
+            name: fullName,
+            category: item.cat,
+            price: basePrice50,
+            oldPrice: basePrice50 + 100,
+            bestseller: (count < 10), // أول 10 عطور تمييز كأكثر مبيعاً تلقائياً
+            stock: 40,
+            stocks: { 10: 10, 30: 15, 50: 10, 100: 5 },
+            sizes: { 10: price10, 30: price30, 50: basePrice50, 100: price100 },
+            oldPrices: { 10: price10 + 30, 30: price30 + 50, 50: basePrice50 + 100, 100: price100 + 150 },
+            image: frameImg,
+            desc: item.notes,
+            notes: item.notes,
+            createdAt: new Date()
+          });
+
+          count++;
+        }
+
+        toast(`تم رفع جميع العطور (${count} عطر) بنجاح تام للمتجر! 🎉💎`);
+        alert(`تم رفع ونشر (${count}) عطر في متجرك بنجاح مع الفريمات الملكية والأسعار!`);
+      } catch (err) {
+        console.error("Sync Error:", err);
+        toast("حدث خطأ أثناء رفع بعض العطور! تحقق من الإنترنت.");
+      } finally {
+        btn.style.pointerEvents = "auto";
+        btn.innerHTML = "<span>📥 رفع لستة الـ 99 عطر لـ Firebase بنقرة واحدة ⚡</span>";
+        document.getElementById("dropdownMenu")?.classList.remove("show");
       }
     });
   </script>
