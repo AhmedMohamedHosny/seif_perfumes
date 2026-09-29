@@ -38,7 +38,7 @@ let currentCategory = "all";
 let searchQuery = "";
 let currentSort = "featured";
 let currentPage = 1;
-const PRODUCTS_PER_PAGE = 12;
+const PRODUCTS_PER_PAGE = 24;
 
 let currentPfpProduct = null;
 let currentPfpSize = 50;
